@@ -1,6 +1,7 @@
 package main
 
 import (
+	"kolibra/database"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -69,6 +70,10 @@ func setupRouter() *gin.Engine {
 
 func main() {
 	r := setupRouter()
+	_,err := database.GetInstance()
+	if err != nil {
+		panic("Failed to connect to database")
+	}
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":8080")
 }
