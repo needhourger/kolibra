@@ -1,2 +1,4 @@
 kolibra
 *.db
+data/
+config.yaml

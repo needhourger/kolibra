@@ -1,20 +1,28 @@
 package main
 
 import (
+	"fmt"
 	"kolibra/api"
+	"kolibra/config"
 	"kolibra/database"
 	"log"
 )
 
 
 func main() {
-	r := api.InitRouter()
-	_,err := database.GetInstance()
+	// load config
+	config.LoadConfig()
+
+	// Connect to database
+	err := database.InitDatabase()
 	if err != nil {
 		log.Panicf("Failed to connect to database: %v", err)
 	}
 	log.Printf("Database connected")
-	// Listen and Server in 0.0.0.0:8080
-	log.Printf("Server will running on 0.0.0.0:8080")
-	r.Run(":8080")
+
+	// Set up router
+	r := api.InitRouter()
+	address := fmt.Sprintf("%s:%d",config.Config.Host,config.Config.Port)
+	log.Printf("Server will running on %s", address)
+	r.Run(address)
 }

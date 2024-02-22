@@ -1,6 +1,7 @@
 package database
 
 import (
+	"kolibra/config"
 	"sync"
 
 	"gorm.io/driver/sqlite"
@@ -15,10 +16,15 @@ var (
 func GetInstance() (*gorm.DB, error) {
 	var err error
 	once.Do(func() {
-		db, err = gorm.Open(sqlite.Open("./data.db"), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open(config.Config.Database), &gorm.Config{})
 		if err == nil {
 			db.AutoMigrate(&User{})
 		}
 	})
 	return db, err
+}
+
+func InitDatabase() error {
+	_, err := GetInstance()
+	return err
 }
