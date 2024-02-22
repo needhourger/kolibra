@@ -2,6 +2,7 @@ package api
 
 import (
 	"kolibra/database"
+	"kolibra/middleware"
 	"log"
 	"time"
 
@@ -30,7 +31,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, JWTClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, middleware.JWTClaims{
 		ID: user.ID,
 		Username: user.Username,
 		Role: user.Role,

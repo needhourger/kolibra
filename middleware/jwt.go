@@ -1,4 +1,4 @@
-package api
+package middleware
 
 import (
 	"kolibra/database"
@@ -6,6 +6,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
+
+var SkipAuth = []string{"/api/login","/api/ping","/api/sign"}
 
 type JWTClaims struct {
 	ID uint `json:"id"`
@@ -16,7 +18,7 @@ type JWTClaims struct {
 
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		for _,path := range skipAuth {
+		for _,path := range SkipAuth {
 			if path == ctx.FullPath() {
 				ctx.Next()
 				return
