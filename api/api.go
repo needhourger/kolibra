@@ -12,5 +12,8 @@ func InitRouter() *gin.Engine {
 	api := r.Group("/api",JWTAuthMiddleware())
 	api.GET("/ping", Ping)
 
+	api.POST("/login", Login)
+	api.POST("/sign", Sign)
+
 	return r
 }

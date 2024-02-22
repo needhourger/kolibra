@@ -25,6 +25,24 @@ func GetUserByID(id uint) (*User, error) {
 	return &user, nil
 }
 
+func GetUserByUsername(name string) (*User, error) {
+	var user User
+	err := db.Where("username = ?", name).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func CheckUserByName(name string) bool {
+	var user User
+	err := db.Where("username = ?", name).First(&user).Error
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 // Update a user
 func UpdateUser(user *User) error {
 	return db.Save(user).Error
