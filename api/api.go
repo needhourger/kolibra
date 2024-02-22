@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var skipAuth = []string{"/api/login","/api/ping"}
+var skipAuth = []string{"/api/login","/api/ping","/api/sign"}
 
 func InitRouter() *gin.Engine {
 	r := gin.Default()
