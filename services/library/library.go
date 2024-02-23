@@ -8,7 +8,6 @@ import (
 	"strings"
 )
 
-
 func ScanLibrary() {
 	err := filepath.Walk(
 		config.Config.Library,
@@ -22,6 +21,7 @@ func ScanLibrary() {
 			for _, suffix := range config.Config.BookExtension {
 				if strings.HasSuffix(info.Name(), suffix) {
 					log.Printf("Found book: %s", path)
+					// todo: add book to database using different author name method
 				}
 			}
 			return nil

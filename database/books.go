@@ -11,6 +11,8 @@ type Book struct {
 	Extension  string
 	UploaderID uint
 	Chapters   []Chapter
+	Size       int64
+	Path       string
 	Ready      bool
 }
 
