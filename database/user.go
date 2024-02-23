@@ -7,7 +7,7 @@ type User struct {
 	Username string `gorm:"unique"`
 	Password string
 	Email    string
-	Role		 string
+	Role     string
 }
 
 // Create a new user

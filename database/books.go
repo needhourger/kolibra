@@ -6,18 +6,19 @@ import (
 
 type Book struct {
 	gorm.Model
-	Title string
-	Author string
-	Extension string
+	Title      string
+	Author     string
+	Extension  string
 	UploaderID uint
-	Chapters []Chapter
+	Chapters   []Chapter
+	Ready      bool
 }
 
 type Chapter struct {
 	gorm.Model
-	Title string
-	Start string
-	End string
+	Title  string
+	Start  string
+	End    string
 	Length int
 	BookID uint
 }
