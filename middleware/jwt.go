@@ -7,18 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var SkipAuth = []string{"/api/login","/api/ping","/api/sign"}
+var SkipAuth = []string{"/api/login", "/api/ping", "/api/sign"}
 
 type JWTClaims struct {
-	ID uint `json:"id"`
-	Username string `json:"username"`
-	Role string `json:"role"`
+	ID       uint              `json:"id"`
+	Username string            `json:"username"`
+	Role     database.RoleType `json:"role"`
 	jwt.StandardClaims
 }
 
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		for _,path := range SkipAuth {
+		for _, path := range SkipAuth {
 			if path == ctx.FullPath() {
 				ctx.Next()
 				return
@@ -57,7 +57,6 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Set the user ID in the context
 		ctx.Set("user", user)
 		ctx.Next()
 	}

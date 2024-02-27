@@ -7,8 +7,15 @@ type User struct {
 	Username string `gorm:"unique"`
 	Password string
 	Email    string
-	Role     string
+	Role     RoleType
 }
+
+type RoleType string
+
+const (
+	ADMIN RoleType = "ADMIN"
+	USER  RoleType = "USER"
+)
 
 // Create a new user
 func CreateUser(user *User) error {
