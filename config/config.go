@@ -8,13 +8,13 @@ import (
 )
 
 type Settings struct {
-	Database          string   `yaml:"database"`
-	Library           string   `yaml:"library"`
-	Port              uint     `yaml:"port"`
-	Host              string   `yaml:"host"`
-	BookExtension     []string `yaml:"book_extension"`
-	FileSizeThreshold int64    `yaml:"file_size_threshold"`
-	FileNameMethod    string   `yaml:"file_name_method"`
+	Database          string             `yaml:"database"`
+	Library           string             `yaml:"library"`
+	Port              uint               `yaml:"port"`
+	Host              string             `yaml:"host"`
+	BookExtension     []string           `yaml:"book_extension"`
+	FileSizeThreshold int64              `yaml:"file_size_threshold"`
+	FileNameMethod    FileNameMethodType `yaml:"file_name_method"`
 }
 
 type FileNameMethodType string

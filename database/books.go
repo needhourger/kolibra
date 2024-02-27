@@ -24,3 +24,8 @@ type Chapter struct {
 	Length int
 	BookID uint
 }
+
+// Book CRUD
+func CreateBook(book *Book) error {
+	return db.Create(book).Error
+}
