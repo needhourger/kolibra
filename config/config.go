@@ -15,6 +15,7 @@ type Settings struct {
 	BookExtension     []string           `yaml:"book_extension"`
 	FileSizeThreshold int64              `yaml:"file_size_threshold"`
 	FileNameMethod    FileNameMethodType `yaml:"file_name_method"`
+	DefaultTitleRegex string             `yaml:"default_title_regex"`
 }
 
 type FileNameMethodType string

@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"kolibra/config"
 	"kolibra/database"
+	"kolibra/services/extractor"
 	"log"
 	"path/filepath"
 	"strings"
@@ -36,7 +37,10 @@ func LoadBookByPath(path string, info fs.FileInfo) {
 		return
 	}
 
-	// todo: extract chapters
+	err = extractor.Extract(&book)
+	if err != nil {
+		log.Printf("Failed to extract book: %s", err)
+	}
 }
 
 func ScanLibrary() {
