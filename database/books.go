@@ -42,7 +42,7 @@ func GetAllBooks() ([]Book, error) {
 	return books, err
 }
 
-func GetBookByID(id string) (Book, error) {
+func GetBookByID(id any) (Book, error) {
 	book := Book{}
 	err := db.First(&book, id).Error
 	return book, err
@@ -62,7 +62,7 @@ func CreateChapter(chapter *Chapter) error {
 	return db.Create(chapter).Error
 }
 
-func GetChaptersByBookID(bookID string) ([]Chapter, error) {
+func GetChaptersByBookID(bookID any) ([]Chapter, error) {
 	chapters := []Chapter{}
 	err := db.Where("book_id = ?", bookID).Find(&chapters).Error
 	return chapters, err

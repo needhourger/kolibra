@@ -12,13 +12,16 @@ import (
 )
 
 func extractFileName(path string, info fs.FileInfo) (string, string) {
+	fileName := strings.Trim(strings.Split(info.Name(), ".")[0], " ")
 	switch config.Config.FileNameMethod {
 	case config.DIR_AUTHOR:
-		return filepath.Base(filepath.Dir(path)), info.Name()
+		return filepath.Base(filepath.Dir(path)), fileName
 	case config.FILE_AUTHOR:
-		return strings.Split(info.Name(), "-")[0], strings.Split(info.Name(), "-")[1]
+		author := strings.Trim(strings.Split(fileName, "-")[0], " ")
+		name := strings.Trim(strings.Split(fileName, "-")[1], " ")
+		return author, name
 	default:
-		return "", info.Name()
+		return "", fileName
 	}
 }
 
