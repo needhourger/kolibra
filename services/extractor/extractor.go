@@ -78,7 +78,6 @@ func extractTxt(book *database.Book) error {
 		}
 		isTitle := isStringTitle(reg, line)
 		if isTitle {
-			log.Printf("Found title: %s", line)
 			pos, err := f.Seek(0, io.SeekCurrent)
 			if err != nil {
 				log.Printf("Failed to get position: %s", err)
