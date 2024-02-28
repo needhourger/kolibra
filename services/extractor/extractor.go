@@ -10,6 +10,9 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/html/charset"
+	"golang.org/x/text/transform"
 )
 
 func Extract(book *database.Book) error {
@@ -29,13 +32,30 @@ func isStringTitle(reg string, str string) bool {
 	return isTitle
 }
 
-func extractTxt(book *database.Book) error {
-	f, err := os.Open(book.Path)
+func openFile(path string) (*bufio.Reader, error) {
+	f, err := os.Open(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	reader := bufio.NewReader(f)
+	dumpedBytes, err := reader.Peek(1024)
+	if err != nil {
+		return nil, err
+	}
+	e, name, _ := charset.DetermineEncoding(dumpedBytes, "text/plain")
+	if name == "utf-8" {
+		return reader, nil
+	}
+	newDecodedReader := transform.NewReader(f, e.NewDecoder().Transformer)
+	return bufio.NewReader(newDecodedReader), nil
+}
+
+func extractTxt(book *database.Book) error {
+	reader, err := openFile(book.Path)
+	if err != nil {
+		return err
+	}
 	var preChapter, curChapter *database.Chapter
 	for {
 		bytes, _, err := reader.ReadLine()
