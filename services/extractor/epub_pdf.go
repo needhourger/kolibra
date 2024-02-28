@@ -7,7 +7,7 @@ import (
 	"github.com/gen2brain/go-fitz"
 )
 
-func extractEPUB(book *database.Book) error {
+func extractEPUB_PDF(book *database.Book) error {
 	doc, err := fitz.New(book.Path)
 	if err != nil {
 		return err
