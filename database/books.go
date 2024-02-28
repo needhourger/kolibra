@@ -35,6 +35,24 @@ func UpdateBook(book *Book) error {
 	return db.Save(book).Error
 }
 
+func GetAllBooks() ([]Book, error) {
+	books := []Book{}
+	err := db.Find(&books).Error
+	return books, err
+}
+
+func GetBookByID(id string) (Book, error) {
+	book := Book{}
+	err := db.First(&book, id).Error
+	return book, err
+}
+
 func CreateChapter(chapter *Chapter) error {
 	return db.Create(chapter).Error
+}
+
+func GetChaptersByBookID(bookID string) ([]Chapter, error) {
+	chapters := []Chapter{}
+	err := db.Where("book_id = ?", bookID).Find(&chapters).Error
+	return chapters, err
 }
