@@ -25,6 +25,7 @@ type Chapter struct {
 	End    int64
 	Length int64
 	Level  int `gorm:"default:1"`
+	URI    string
 	BookID uint
 }
 

@@ -7,6 +7,6 @@ import (
 )
 
 func ScanLibrary(c *gin.Context) {
-	library.ScanLibrary()
+	go library.ScanLibrary()
 	c.JSON(200, nil)
 }

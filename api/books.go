@@ -30,6 +30,10 @@ func GetBook(c *gin.Context) {
 
 func GetBookChapters(c *gin.Context) {
 	bookID := c.Param("id")
+	if _, err := database.GetBookByID(bookID); err != nil {
+		c.JSON(404, gin.H{"error": "No such book"})
+		return
+	}
 	chapters, err := database.GetChaptersByBookID(bookID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})

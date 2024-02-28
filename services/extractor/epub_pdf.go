@@ -20,10 +20,12 @@ func extractEPUB_PDF(book *database.Book) error {
 	}
 
 	for _, toc := range tocs {
+		log.Printf("Title: %s, Page: %d, URI: %s, Level: %d", toc.Title, toc.Page, toc.URI, toc.Level)
 		chapter := database.Chapter{
 			BookID: book.ID,
 			Title:  toc.Title,
 			Start:  int64(toc.Page),
+			URI:    toc.URI,
 			Level:  toc.Level,
 		}
 		err := database.CreateChapter(&chapter)
@@ -31,6 +33,12 @@ func extractEPUB_PDF(book *database.Book) error {
 			log.Printf("Error creating chapter: %v", err)
 			continue
 		}
+	}
+
+	book.Ready = true
+	err = database.UpdateBook(book)
+	if err != nil {
+		return err
 	}
 	return nil
 }
