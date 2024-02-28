@@ -5,6 +5,7 @@ import (
 	"kolibra/config"
 	"kolibra/database"
 	"kolibra/services/extractor"
+	"kolibra/tools"
 	"log"
 	"path/filepath"
 	"strings"
@@ -22,6 +23,15 @@ func extractFileName(path string, info fs.FileInfo) (string, string) {
 }
 
 func LoadBookByPath(path string, info fs.FileInfo) {
+	hash, err := tools.CalculateFileHash(path)
+	if err != nil {
+		log.Printf("Failed to calculate file hash: %s", err)
+		return
+	}
+	if database.CheckBookFileHash(hash) {
+		log.Printf("Book already exists: %s", path)
+		return
+	}
 	author, title := extractFileName(path, info)
 	book := database.Book{
 		Title:     title,
@@ -30,8 +40,9 @@ func LoadBookByPath(path string, info fs.FileInfo) {
 		Size:      info.Size(),
 		Path:      path,
 		Ready:     false,
+		Hash:      hash,
 	}
-	err := database.CreateBook(&book)
+	err = database.CreateBook(&book)
 	if err != nil {
 		log.Printf("Failed to load book: %s", err)
 		return

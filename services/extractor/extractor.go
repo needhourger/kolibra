@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"golang.org/x/net/html/charset"
+	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 )
 
@@ -32,30 +33,32 @@ func isStringTitle(reg string, str string) bool {
 	return isTitle
 }
 
-func openFile(path string) (*bufio.Reader, error) {
+func openFile(path string) (*os.File, *bufio.Reader, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	reader := bufio.NewReader(f)
 	dumpedBytes, err := reader.Peek(1024)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	e, name, _ := charset.DetermineEncoding(dumpedBytes, "text/plain")
+	_, name, _ := charset.DetermineEncoding(dumpedBytes, "text/plain")
+	log.Printf("Detected encoding: %s", name)
 	if name == "utf-8" {
-		return reader, nil
+		return f, reader, nil
 	}
-	newDecodedReader := transform.NewReader(f, e.NewDecoder().Transformer)
-	return bufio.NewReader(newDecodedReader), nil
+	newDecodedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder().Transformer)
+	return f, bufio.NewReader(newDecodedReader), nil
 }
 
 func extractTxt(book *database.Book) error {
-	reader, err := openFile(book.Path)
+	f, reader, err := openFile(book.Path)
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	var preChapter, curChapter *database.Chapter
 	for {
 		bytes, _, err := reader.ReadLine()
@@ -73,9 +76,9 @@ func extractTxt(book *database.Book) error {
 		} else {
 			reg = book.TitleRegex
 		}
-
 		isTitle := isStringTitle(reg, line)
 		if isTitle {
+			log.Printf("Found title: %s", line)
 			pos, err := f.Seek(0, io.SeekCurrent)
 			if err != nil {
 				log.Printf("Failed to get position: %s", err)

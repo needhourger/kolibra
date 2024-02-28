@@ -14,6 +14,7 @@ type Book struct {
 	Size       int64
 	Path       string
 	TitleRegex string `gorm:"default:''"`
+	Hash       string `gorm:"unique"`
 	Ready      bool
 }
 
@@ -45,6 +46,16 @@ func GetBookByID(id string) (Book, error) {
 	book := Book{}
 	err := db.First(&book, id).Error
 	return book, err
+}
+
+func CheckBookFileHash(hash string) bool {
+	book := Book{}
+	err := db.Where("hash = ?", hash).First(&book).Error
+	return err == nil
+}
+
+func DeleteBookByID(id string) error {
+	return db.Delete(&Book{}, id).Error
 }
 
 func CreateChapter(chapter *Chapter) error {
