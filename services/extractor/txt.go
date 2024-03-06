@@ -1,18 +1,13 @@
 package extractor
 
 import (
-	"bufio"
 	"io"
 	"kolibra/config"
 	"kolibra/database"
+	"kolibra/tools"
 	"log"
-	"os"
 	"regexp"
 	"strings"
-
-	"golang.org/x/net/html/charset"
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"golang.org/x/text/transform"
 )
 
 func isStringTitle(reg string, str string) bool {
@@ -24,28 +19,9 @@ func isStringTitle(reg string, str string) bool {
 	return isTitle
 }
 
-func openFile(path string) (*os.File, *bufio.Reader, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	reader := bufio.NewReader(f)
-	dumpedBytes, err := reader.Peek(1024)
-	if err != nil {
-		return nil, nil, err
-	}
-	_, name, _ := charset.DetermineEncoding(dumpedBytes, "text/plain")
-	log.Printf("Detected encoding: %s", name)
-	if name == "utf-8" {
-		return f, reader, nil
-	}
-	newDecodedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder().Transformer)
-	return f, bufio.NewReader(newDecodedReader), nil
-}
-
+// todo: extractor position error
 func extractTxt(book *database.Book) error {
-	f, reader, err := openFile(book.Path)
+	f, reader, err := tools.OpenFile(book.Path)
 	if err != nil {
 		return err
 	}

@@ -26,6 +26,7 @@ func InitRouter() *gin.Engine {
 	api.DELETE("/books/:id", DeleteBookByID)
 	api.GET("/books/:id/chapters", GetBookChapters)
 	api.GET("/books/:id/chapters/:cid", GetBookChapter)
+	api.GET("/books/:id/chapters/:cid/content", GetChapterContent)
 	// Library api
 	api.GET("/library/scan", ScanLibrary)
 

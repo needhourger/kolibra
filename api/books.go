@@ -2,6 +2,7 @@ package api
 
 import (
 	"kolibra/database"
+	"kolibra/services/reader"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -57,6 +58,27 @@ func GetBookChapter(c *gin.Context) {
 		return
 	}
 	c.JSON(200, chapter)
+}
+
+func GetChapterContent(c *gin.Context) {
+	bookID := c.Param("id")
+	chapterID := c.Param("cid")
+	book, err := database.GetBookByID(bookID)
+	if err != nil {
+		c.JSON(404, gin.H{"error": "No such Book"})
+		return
+	}
+	chapter, err := book.GetChapterByID(chapterID)
+	if err != nil {
+		c.JSON(404, gin.H{"error": "No such Chapter"})
+		return
+	}
+	content, err := reader.ReadChapter(&book, &chapter)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"data": content})
 }
 
 func DeleteBookByID(c *gin.Context) {
