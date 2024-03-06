@@ -20,10 +20,13 @@ func InitRouter() *gin.Engine {
 	api.POST("/sign", Sign)
 
 	// Auth api
+	// Book api
 	api.GET("/books", GetAllBooks)
 	api.GET("/books/:id", GetBook)
 	api.DELETE("/books/:id", DeleteBookByID)
 	api.GET("/books/:id/chapters", GetBookChapters)
+	api.GET("/books/:id/chapters/:cid", GetBookChapter)
+	// Library api
 	api.GET("/library/scan", ScanLibrary)
 
 	return r

@@ -43,6 +43,22 @@ func GetBookChapters(c *gin.Context) {
 	c.JSON(200, chapters)
 }
 
+func GetBookChapter(c *gin.Context) {
+	bookID := c.Param("id")
+	chapterID := c.Param("cid")
+	book, err := database.GetBookByID(bookID)
+	if err != nil {
+		c.JSON(404, gin.H{"error": "No such Book"})
+		return
+	}
+	chapter, err := book.GetChapterByID(chapterID)
+	if err != nil {
+		c.JSON(404, gin.H{"error": "No such Chapter"})
+		return
+	}
+	c.JSON(200, chapter)
+}
+
 func DeleteBookByID(c *gin.Context) {
 	bookID := c.Param("id")
 	if _, err := database.GetBookByID(bookID); err != nil {

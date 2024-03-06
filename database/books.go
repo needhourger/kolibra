@@ -69,3 +69,11 @@ func GetChaptersByBookID(bookID any) ([]Chapter, error) {
 	err := db.Where("book_id = ?", bookID).Find(&chapters).Error
 	return chapters, err
 }
+
+func (book *Book) GetChapterByID(cid any) (Chapter, error) {
+	chapter := Chapter{
+		BookID: book.ID,
+	}
+	err := db.First(&chapter, cid).Error
+	return chapter, err
+}
