@@ -19,7 +19,6 @@ func isStringTitle(reg string, str string) bool {
 	return isTitle
 }
 
-// todo: extractor position error
 func extractTxt(book *database.Book) error {
 	f, reader, err := tools.OpenFile(book.Path)
 	if err != nil {
@@ -27,6 +26,12 @@ func extractTxt(book *database.Book) error {
 	}
 	defer f.Close()
 	var preChapter, curChapter *database.Chapter
+	var reg string
+	if book.TitleRegex == "" {
+		reg = config.Config.DefaultTitleRegex
+	} else {
+		reg = book.TitleRegex
+	}
 	for {
 		bytes, _, err := reader.ReadLine()
 		if err == io.EOF {
@@ -35,16 +40,9 @@ func extractTxt(book *database.Book) error {
 		if err != nil {
 			return err
 		}
-
 		line := string(bytes)
-		var reg string
-		if book.TitleRegex == "" {
-			reg = config.Config.DefaultTitleRegex
-		} else {
-			reg = book.TitleRegex
-		}
-		isTitle := isStringTitle(reg, line)
-		if isTitle {
+		log.Printf("Line: %s", line)
+		if isStringTitle(reg, line) {
 			pos, err := f.Seek(0, io.SeekCurrent)
 			if err != nil {
 				log.Printf("Failed to get position: %s", err)
@@ -56,6 +54,7 @@ func extractTxt(book *database.Book) error {
 				Start:  pos,
 				BookID: book.ID,
 			}
+			log.Printf("Title: %s, Start: %d", curChapter.Title, curChapter.Start)
 			if preChapter != nil {
 				preChapter.End = pos - 1
 				preChapter.Length = preChapter.End - preChapter.Start
@@ -64,6 +63,7 @@ func extractTxt(book *database.Book) error {
 					log.Printf("Failed to create chapter: %s", err)
 				}
 			}
+			break
 		}
 	}
 	if curChapter != nil {
