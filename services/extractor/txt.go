@@ -20,7 +20,7 @@ func isStringTitle(reg string, str string) bool {
 }
 
 func extractTxt(book *database.Book) error {
-	f, reader, err := tools.OpenFile(book.Path)
+	f, buf, err := tools.OpenFile(book.Path)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func extractTxt(book *database.Book) error {
 		reg = book.TitleRegex
 	}
 	for {
-		bytes, _, err := reader.ReadLine()
+		bytes, _, err := buf.ReadLine()
 		if err == io.EOF {
 			break
 		}
@@ -50,12 +50,12 @@ func extractTxt(book *database.Book) error {
 			preChapter = curChapter
 			curChapter = &database.Chapter{
 				Title:  strings.Trim(line, " "),
-				Start:  pos,
+				Start:  pos - int64(buf.Size()),
 				BookID: book.ID,
 			}
 			log.Printf("Title: %s, Start: %d", curChapter.Title, curChapter.Start)
 			if preChapter != nil {
-				preChapter.End = pos - 1
+				preChapter.End = curChapter.Start - 1
 				preChapter.Length = preChapter.End - preChapter.Start
 				err = database.CreateChapter(preChapter)
 				if err != nil {

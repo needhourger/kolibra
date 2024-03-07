@@ -36,6 +36,7 @@ func OpenFile(path string) (*os.File, *bufio.Reader, error) {
 	reader := bufio.NewReader(f)
 	dumpedBytes, err := reader.Peek(1024)
 	f.Seek(0, io.SeekStart)
+	reader.Reset(f)
 	if err != nil {
 		return nil, nil, err
 	}
