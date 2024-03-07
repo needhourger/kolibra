@@ -41,7 +41,6 @@ func extractTxt(book *database.Book) error {
 			return err
 		}
 		line := string(bytes)
-		log.Printf("Line: %s", line)
 		if isStringTitle(reg, line) {
 			pos, err := f.Seek(0, io.SeekCurrent)
 			if err != nil {
@@ -63,7 +62,6 @@ func extractTxt(book *database.Book) error {
 					log.Printf("Failed to create chapter: %s", err)
 				}
 			}
-			break
 		}
 	}
 	if curChapter != nil {
