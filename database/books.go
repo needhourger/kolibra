@@ -71,9 +71,7 @@ func GetChaptersByBookID(bookID any) ([]Chapter, error) {
 }
 
 func (book *Book) GetChapterByID(cid any) (Chapter, error) {
-	chapter := Chapter{
-		BookID: book.ID,
-	}
-	err := db.First(&chapter, cid).Error
+	chapter := Chapter{}
+	err := db.Model(&book).Where("id = ?", cid).Association("Chapters").Find(&chapter, cid)
 	return chapter, err
 }
