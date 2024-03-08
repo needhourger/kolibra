@@ -19,12 +19,18 @@ func extractEPUB_PDF(book *database.Book) error {
 		return err
 	}
 
-	for _, toc := range tocs {
+	for index, toc := range tocs {
+		var page int64
+		if toc.Page == -1 {
+			page = int64(index) + 1
+		} else {
+			page = int64(toc.Page)
+		}
 		log.Printf("Title: %s, Page: %d, URI: %s, Level: %d", toc.Title, toc.Page, toc.URI, toc.Level)
 		chapter := database.Chapter{
 			BookID: book.ID,
 			Title:  toc.Title,
-			Start:  int64(toc.Page),
+			Start:  page,
 			URI:    toc.URI,
 			Level:  toc.Level,
 		}
