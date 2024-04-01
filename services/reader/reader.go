@@ -3,6 +3,7 @@ package reader
 import (
 	"errors"
 	"io"
+	"kolibra/config"
 	"kolibra/database"
 	"kolibra/tools"
 	"time"
@@ -15,7 +16,10 @@ var readerCache *cache.Cache
 
 func CreateReaderCache() error {
 	if readerCache == nil {
-		readerCache = cache.New(10*time.Minute, 10*time.Minute)
+		readerCache = cache.New(
+			time.Duration(config.Config.Advance.ReaderCachedMinutes)*time.Minute,
+			time.Duration(config.Config.Advance.ReaderCachedMinutes)*time.Minute,
+		)
 		return nil
 	}
 	return errors.New("Pool already exists!")
