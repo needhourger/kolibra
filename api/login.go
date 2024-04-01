@@ -2,11 +2,8 @@ package api
 
 import (
 	"kolibra/database"
-	"kolibra/middleware"
 	"log"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,21 +28,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, middleware.JWTClaims{
-		ID:       user.ID,
-		Username: user.Username,
-		Role:     user.Role,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-		},
-	})
-
-	tokenString, err := token.SignedString([]byte("secret"))
-	if err != nil {
-		c.JSON(500, gin.H{"message": "Failed to generate token"})
-		return
-	}
+	//todo: golang jwt auth
 
 	log.Printf("User %v logged in", user.Username)
-	c.JSON(200, gin.H{"token": tokenString})
+	c.JSON(200, gin.H{"token": ""})
 }

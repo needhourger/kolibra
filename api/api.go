@@ -1,8 +1,6 @@
 package api
 
 import (
-	"kolibra/middleware"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +11,6 @@ func InitRouter() *gin.Engine {
 	api := r.Group("/api")
 	// Test api
 	api.GET("/ping", Ping)
-	api.GET("/pings", middleware.AdminAuth(), Ping)
 
 	// No auth api
 	api.POST("/login", Login)
