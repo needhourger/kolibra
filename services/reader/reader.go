@@ -5,9 +5,21 @@ import (
 	"io"
 	"kolibra/database"
 	"kolibra/tools"
+	"time"
 
 	"github.com/gen2brain/go-fitz"
+	"github.com/patrickmn/go-cache"
 )
+
+var readerCache *cache.Cache
+
+func CreateReaderCache() error {
+	if readerCache == nil {
+		readerCache = cache.New(10*time.Minute, 10*time.Minute)
+		return nil
+	}
+	return errors.New("Pool already exists!")
+}
 
 func ReadChapter(book *database.Book, chapter *database.Chapter) (string, error) {
 	switch book.Extension {
@@ -22,13 +34,18 @@ func ReadChapter(book *database.Book, chapter *database.Chapter) (string, error)
 }
 
 func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (string, error) {
-	doc, err := fitz.New(book.Path)
-	if err != nil {
-		return "", err
+	doc, found := readerCache.Get(book.Path)
+	if !found {
+		doc, err := fitz.New(book.Path)
+		if err != nil {
+			defer doc.Close()
+			return "", err
+		}
+		readerCache.Set(book.Path, doc, cache.DefaultExpiration)
+		return doc.HTML(int(chapter.Start), false)
 	}
-	defer doc.Close()
 
-	return doc.HTML(int(chapter.Start), false)
+	return doc.(*fitz.Document).HTML(int(chapter.Start), false)
 }
 
 func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, error) {
