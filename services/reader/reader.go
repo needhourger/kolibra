@@ -49,15 +49,26 @@ func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (string
 }
 
 func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, error) {
-	f, reader, err := tools.OpenFile(book.Path)
-	if err != nil {
-		return "", err
+	reader, found := readerCache.Get(book.Path)
+	if !found {
+		txtReader, err := tools.OpenTxtByEncode(book.Path)
+		if err != nil {
+			return "", err
+		}
+		if _, err := txtReader.F.Seek(chapter.Start, io.SeekStart); err != nil {
+			return "", err
+		}
+		bytes := make([]byte, chapter.Length)
+		_, err = io.ReadFull(txtReader.Reader, bytes)
+		readerCache.Set(book.Path, txtReader, cache.DefaultExpiration)
+		return string(bytes), err
 	}
-	defer f.Close()
-	if _, err := f.Seek(chapter.Start, io.SeekCurrent); err != nil {
+
+	txtReader := reader.(*tools.TxtReader)
+	if _, err := txtReader.F.Seek(chapter.Start, io.SeekStart); err != nil {
 		return "", err
 	}
 	bytes := make([]byte, chapter.Length)
-	_, err = io.ReadFull(reader, bytes)
+	_, err := io.ReadFull(txtReader.Reader, bytes)
 	return string(bytes), err
 }

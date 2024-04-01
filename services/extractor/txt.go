@@ -20,11 +20,11 @@ func isStringTitle(reg string, str string) bool {
 }
 
 func extractTxt(book *database.Book) error {
-	f, buf, err := tools.OpenFile(book.Path)
+	txtReader, err := tools.OpenTxtByEncode(book.Path)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer txtReader.F.Close()
 	var preChapter, curChapter *database.Chapter
 	var reg string
 	if book.TitleRegex == "" {
@@ -33,7 +33,7 @@ func extractTxt(book *database.Book) error {
 		reg = book.TitleRegex
 	}
 	for {
-		bytes, _, err := buf.ReadLine()
+		bytes, _, err := txtReader.Reader.ReadLine()
 		if err == io.EOF {
 			break
 		}
@@ -42,7 +42,7 @@ func extractTxt(book *database.Book) error {
 		}
 		line := string(bytes)
 		if isStringTitle(reg, line) {
-			pos, err := f.Seek(0, io.SeekCurrent)
+			pos, err := txtReader.F.Seek(0, io.SeekCurrent)
 			if err != nil {
 				log.Printf("Failed to get position: %s", err)
 				continue
@@ -50,7 +50,7 @@ func extractTxt(book *database.Book) error {
 			preChapter = curChapter
 			curChapter = &database.Chapter{
 				Title:  strings.Trim(line, " "),
-				Start:  pos - int64(buf.Size()),
+				Start:  pos - int64(txtReader.Reader.Size()),
 				BookID: book.ID,
 			}
 			log.Printf("Title: %s, Start: %d", curChapter.Title, curChapter.Start)

@@ -27,10 +27,15 @@ func CalculateFileHash(path string) (string, error) {
 	return string(ret), nil
 }
 
-func OpenFile(path string) (*os.File, *bufio.Reader, error) {
+type TxtReader struct {
+	F      *os.File
+	Reader *bufio.Reader
+}
+
+func OpenTxtByEncode(path string) (*TxtReader, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	reader := bufio.NewReader(f)
@@ -38,13 +43,13 @@ func OpenFile(path string) (*os.File, *bufio.Reader, error) {
 	f.Seek(0, io.SeekStart)
 	reader.Reset(f)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	_, name, _ := charset.DetermineEncoding(dumpedBytes, "text/plain")
 	log.Printf("Detected encoding: %s", name)
 	if name == "utf-8" {
-		return f, reader, nil
+		return &TxtReader{f, reader}, nil
 	}
 	newDecodedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder().Transformer)
-	return f, bufio.NewReader(newDecodedReader), nil
+	return &TxtReader{f, bufio.NewReader(newDecodedReader)}, nil
 }
