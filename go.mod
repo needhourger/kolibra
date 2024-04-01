@@ -3,7 +3,6 @@ module kolibra
 go 1.22.0
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gen2brain/go-fitz v1.23.7
 	github.com/gin-gonic/gin v1.9.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
