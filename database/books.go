@@ -40,9 +40,9 @@ func GetAllBooks() ([]Book, error) {
 	return books, err
 }
 
-func GetBookByID(id any) (Book, error) {
+func GetBookByID(id string) (Book, error) {
 	book := Book{}
-	err := db.First(&book, id).Error
+	err := db.First(&book, "id = ?", id).Error
 	return book, err
 }
 
@@ -68,6 +68,6 @@ func GetChaptersByBookID(bookID any) ([]Chapter, error) {
 
 func (book *Book) GetChapterByID(cid any) (Chapter, error) {
 	chapter := Chapter{}
-	err := db.Model(&book).Where("id = ?", cid).Association("Chapters").Find(&chapter, cid)
+	err := db.Model(&book).Where("id = ?", cid).Association("Chapters").Find(&chapter, "id = ?", cid)
 	return chapter, err
 }
