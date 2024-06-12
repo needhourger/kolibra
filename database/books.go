@@ -1,15 +1,11 @@
 package database
 
-import (
-	"gorm.io/gorm"
-)
-
 type Book struct {
-	gorm.Model
+	ModelBase
 	Title      string
 	Author     string
 	Extension  string
-	UploaderID uint
+	UploaderID string
 	Chapters   []Chapter
 	Size       int64
 	Path       string
@@ -19,14 +15,14 @@ type Book struct {
 }
 
 type Chapter struct {
-	gorm.Model
+	ModelBase
 	Title  string
 	Start  int64
 	End    int64
 	Length int64
 	Level  int `gorm:"default:1"`
 	URI    string
-	BookID uint
+	BookID string
 }
 
 // Book CRUD

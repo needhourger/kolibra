@@ -1,9 +1,7 @@
 package database
 
-import "gorm.io/gorm"
-
 type User struct {
-	gorm.Model
+	ModelBase
 	Username string `gorm:"unique"`
 	Password string
 	Email    string
