@@ -2,14 +2,17 @@ package database
 
 import (
 	"encoding/hex"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type ModelBase struct {
-	gorm.Model
-	ID string `gorm:"primary_key"`
+	ID        string `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdateAt  time.Time
+	DeleteAt  gorm.DeletedAt `gorm:"index"`
 }
 
 func generateShortUUID() (string, error) {
