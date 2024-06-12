@@ -25,7 +25,7 @@ func CreateReaderCache() error {
 	return errors.New("Pool already exists!")
 }
 
-func ReadChapter(book *database.Book, chapter *database.Chapter) (string, error) {
+func ReadChapter(book *database.Book, chapter *database.Chapter) (any, error) {
 	switch book.Extension {
 	case ".txt":
 		return ReadChapterTXT(book, chapter)
@@ -37,7 +37,7 @@ func ReadChapter(book *database.Book, chapter *database.Chapter) (string, error)
 	return "", errors.New("Unsupported file type")
 }
 
-func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (string, error) {
+func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (any, error) {
 	doc, found := readerCache.Get(book.Path)
 	if !found {
 		doc, err := fitz.New(book.Path)
