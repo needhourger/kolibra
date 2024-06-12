@@ -3,6 +3,7 @@ package tools
 import (
 	"bufio"
 	"crypto/sha256"
+	"encoding/hex"
 	"io"
 	"log"
 	"os"
@@ -23,8 +24,9 @@ func CalculateFileHash(path string) (string, error) {
 	if _, err := io.Copy(hash, f); err != nil {
 		return "", err
 	}
-	ret := hash.Sum(nil)
-	return string(ret), nil
+	hashBytes := hash.Sum(nil)
+	hashString := hex.EncodeToString(hashBytes)
+	return hashString, nil
 }
 
 type TxtReader struct {
