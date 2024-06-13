@@ -46,10 +46,12 @@ func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (any, e
 			return "", err
 		}
 		readerCache.Set(book.Path, doc, cache.DefaultExpiration)
-		return doc.HTML(int(chapter.Start), false)
+		// return doc.HTML(int(chapter.Start), false)
+		return doc.SVG(int(chapter.Start))
 	}
 
-	return doc.(*fitz.Document).HTML(int(chapter.Start), false)
+	// return doc.(*fitz.Document).HTML(int(chapter.Start), false)
+	return doc.(*fitz.Document).SVG(int(chapter.Start))
 }
 
 func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, error) {
