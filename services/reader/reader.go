@@ -17,8 +17,8 @@ var readerCache *cache.Cache
 func CreateReaderCache() error {
 	if readerCache == nil {
 		readerCache = cache.New(
-			time.Duration(config.Config.Advance.ReaderCachedMinutes)*time.Minute,
-			time.Duration(config.Config.Advance.ReaderCachedMinutes)*time.Minute,
+			time.Duration(config.Settings.Advance.ReaderCachedMinutes)*time.Minute,
+			time.Duration(config.Settings.Advance.ReaderCachedMinutes)*time.Minute,
 		)
 		return nil
 	}

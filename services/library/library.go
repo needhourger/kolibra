@@ -13,7 +13,7 @@ import (
 
 func extractFileName(path string, info fs.FileInfo) (string, string) {
 	fileName := strings.Trim(strings.Split(info.Name(), ".")[0], " ")
-	switch config.Config.FileNameMethod {
+	switch config.Settings.FileNameMethod {
 	case config.DIR_AUTHOR:
 		return filepath.Base(filepath.Dir(path)), fileName
 	case config.FILE_AUTHOR:
@@ -59,7 +59,7 @@ func LoadBookByPath(path string, info fs.FileInfo) {
 
 func ScanLibrary() {
 	err := filepath.Walk(
-		config.Config.Library,
+		config.Settings.Library,
 		func(path string, info fs.FileInfo, err error) error {
 			if err != nil {
 				return err
@@ -67,7 +67,7 @@ func ScanLibrary() {
 			if info.IsDir() {
 				return nil
 			}
-			for _, suffix := range config.Config.BookExtension {
+			for _, suffix := range config.Settings.BookExtension {
 				if strings.HasSuffix(info.Name(), suffix) {
 					log.Printf("Found book: %s", path)
 					LoadBookByPath(path, info)

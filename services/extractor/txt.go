@@ -28,7 +28,7 @@ func extractTxt(book *database.Book) error {
 	var preChapter, curChapter *database.Chapter
 	var reg string
 	if book.TitleRegex == "" {
-		reg = config.Config.DefaultTitleRegex
+		reg = config.Settings.DefaultTitleRegex
 	} else {
 		reg = book.TitleRegex
 	}

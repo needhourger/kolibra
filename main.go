@@ -23,7 +23,7 @@ func main() {
 
 	// Set up router
 	r := api.InitRouter()
-	address := fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port)
+	address := fmt.Sprintf("%s:%d", config.Settings.Host, config.Settings.Port)
 	log.Printf("Server will running on %s", address)
 	r.Run(address)
 }

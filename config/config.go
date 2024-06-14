@@ -11,7 +11,7 @@ type AdvanceSettings struct {
 	ReaderCachedMinutes uint `yaml:"reader_cached_minutes"`
 }
 
-type Settings struct {
+type KolibraSettings struct {
 	Database          string             `yaml:"database"`
 	Library           string             `yaml:"library"`
 	Port              uint               `yaml:"port"`
@@ -30,15 +30,15 @@ const (
 	FILE_AUTHOR FileNameMethodType = "FILE_AUTHOR"
 )
 
-var Config *Settings
+var Settings *KolibraSettings
 
 func load(path string) error {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	err = yaml.Unmarshal(content, &Config)
-	log.Printf("Config: %v", Config)
+	err = yaml.Unmarshal(content, &Settings)
+	log.Printf("Config: %v", Settings)
 	return err
 }
 
