@@ -9,6 +9,12 @@ import (
 
 type AdvanceSettings struct {
 	ReaderCachedMinutes uint `yaml:"reader_cached_minutes"`
+	// JWT configuration
+	JWTTimeoutHours    uint   `yaml:"jwt_timeout_hours"`
+	JWTMaxRefreshHours uint   `yaml:"jwt_max_refresh_hours"`
+	JWTSecretKey       string `yaml:"jwt_secret_key"`
+	JWTIdentityKey     string `yaml:"jwt_identity_key`
+	JWTHeadName        string `yaml:"jwt_head_name"`
 }
 
 type KolibraSettings struct {
