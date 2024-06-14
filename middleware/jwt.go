@@ -5,6 +5,7 @@ import (
 	"kolibra/config"
 	"kolibra/database"
 	"log"
+	"strings"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt"
@@ -47,10 +48,15 @@ func unauthorizated() func(c *gin.Context, code int, message string) {
 
 func authorizator() func(data any, c *gin.Context) bool {
 	return func(data any, c *gin.Context) bool {
-		if v, ok := data.(database.User); ok && v.Role == database.ADMIN {
-			return true
+		user, ok := data.(*database.User)
+		if !ok {
+			return false
 		}
-		return false
+		requestPath := c.Request.URL.Path
+		if strings.Contains(requestPath, "/api/admin") && user.Role != database.ADMIN {
+			return false
+		}
+		return true
 	}
 }
 
