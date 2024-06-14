@@ -13,7 +13,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/ping", Ping)
 
 	// No auth api
-	api.POST("/login", Login)
+	api.POST("/auth", Login)
 	api.POST("/sign", Sign)
 
 	// Auth api
