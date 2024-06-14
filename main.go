@@ -22,8 +22,8 @@ func main() {
 	log.Printf("Database connected")
 
 	// Set up router
-	r := api.InitRouter()
+	engine := api.InitGinEngine()
 	address := fmt.Sprintf("%s:%d", config.Settings.Host, config.Settings.Port)
 	log.Printf("Server will running on %s", address)
-	r.Run(address)
+	engine.Run(address)
 }

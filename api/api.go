@@ -1,31 +1,43 @@
 package api
 
 import (
+	"kolibra/middleware"
+
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 )
 
-func InitRouter() *gin.Engine {
-	r := gin.Default()
-
-	// api := r.Group("/api", middleware.JWTAuthMiddleware())
-	api := r.Group("/api")
+func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
+	// apiBase := r.Group("/apiBase", middleware.JWTAuthMiddleware())
+	apiBase := engine.Group("/api")
 	// Test api
-	api.GET("/ping", Ping)
+	apiBase.GET("/ping", Ping)
 
 	// No auth api
-	api.POST("/auth", Login)
-	api.POST("/sign", Sign)
+	apiBase.POST("/auth", jwtMiddleware.LoginHandler)
+	apiBase.POST("/sign", Sign)
 
 	// Auth api
 	// Book api
-	api.GET("/books", GetAllBooks)
-	api.GET("/books/:id", GetBook)
-	api.DELETE("/books/:id", DeleteBookByID)
-	api.GET("/books/:id/chapters", GetBookChapters)
-	api.GET("/books/:id/chapters/:cid", GetBookChapter)
-	api.GET("/books/:id/chapters/:cid/content", GetChapterContent)
+	bookApi := apiBase.Group("/books")
+	bookApi.Use(jwtMiddleware.MiddlewareFunc())
+	bookApi.GET("/", GetAllBooks)
+	bookApi.GET("/:id", GetBook)
+	bookApi.DELETE("/:id", DeleteBookByID)
+	bookApi.GET("/:id/chapters", GetBookChapters)
+	bookApi.GET("/:id/chapters/:cid", GetBookChapter)
+	bookApi.GET("/:id/chapters/:cid/content", GetChapterContent)
 	// Library api
-	api.GET("/library/scan", ScanLibrary)
+	libraryApi := apiBase.Group("/library")
+	libraryApi.Use(jwtMiddleware.MiddlewareFunc())
+	libraryApi.GET("/scan", ScanLibrary)
+}
 
-	return r
+func InitGinEngine() *gin.Engine {
+	engine := gin.Default()
+
+	jwtMiddleware := middleware.InitJWTMiddleware()
+	initRouter(engine, jwtMiddleware)
+
+	return engine
 }
