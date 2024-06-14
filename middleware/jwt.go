@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"kolibra/config"
 	"kolibra/database"
 	"log"
@@ -14,6 +15,11 @@ type LoginPayload struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+
+var (
+	ErrUserNotFound    = errors.New("User not found")
+	ErrPasswordInvalid = errors.New("Password invalid")
+)
 
 func InitJWTMiddleware() *jwt.GinJWTMiddleware {
 	middleware := &jwt.GinJWTMiddleware{
@@ -55,13 +61,13 @@ func authenticator() func(c *gin.Context) (any, error) {
 		}
 		user, err := database.GetUserByUsername(payload.Username)
 		if err != nil {
-			c.JSON(404, gin.H{"message": "User not found"})
+			return "", ErrUserNotFound
 		}
 		if user.Password != payload.Password {
-			c.JSON(403, gin.H{"message": "Invalid password"})
+			return "", errors.New("Invalid password")
 		}
 		log.Printf("User %v logged in", user)
-		return &user, nil
+		return &user, ErrPasswordInvalid
 	}
 }
 

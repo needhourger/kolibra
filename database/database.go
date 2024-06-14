@@ -19,6 +19,8 @@ func GetInstance() (*gorm.DB, error) {
 		db, err = gorm.Open(sqlite.Open(config.Settings.Database), &gorm.Config{})
 		if err == nil {
 			db.AutoMigrate(&User{}, &Book{}, &Chapter{})
+			adminUser := User{Username: "admin", Password: "admin", Role: ADMIN, Email: ""}
+			db.FirstOrCreate(&adminUser)
 		}
 	})
 	return db, err
