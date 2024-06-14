@@ -15,7 +15,7 @@ func GetAllBooks(c *gin.Context) {
 		return
 	}
 	log.Printf("Books count: %d", len(books))
-	c.JSON(200, books)
+	c.JSON(200, gin.H{"data": books})
 }
 
 func GetBook(c *gin.Context) {
@@ -26,7 +26,7 @@ func GetBook(c *gin.Context) {
 		return
 	}
 	log.Printf("Book: %v", book)
-	c.JSON(200, book)
+	c.JSON(200, gin.H{"data": book})
 }
 
 func GetBookChapters(c *gin.Context) {
@@ -41,7 +41,7 @@ func GetBookChapters(c *gin.Context) {
 		return
 	}
 	log.Printf("Chapters count: %d", len(chapters))
-	c.JSON(200, chapters)
+	c.JSON(200, gin.H{"data": chapters})
 }
 
 func GetBookChapter(c *gin.Context) {
@@ -57,7 +57,7 @@ func GetBookChapter(c *gin.Context) {
 		c.JSON(404, gin.H{"error": "No such Chapter"})
 		return
 	}
-	c.JSON(200, chapter)
+	c.JSON(200, gin.H{"data": chapter})
 }
 
 func GetChapterContent(c *gin.Context) {
