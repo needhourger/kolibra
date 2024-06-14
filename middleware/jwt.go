@@ -28,6 +28,7 @@ func InitJWTMiddleware() *jwt.GinJWTMiddleware {
 		Timeout:       time.Duration(config.Settings.Advance.JWTTimeoutHours) * time.Hour,
 		MaxRefresh:    time.Duration(config.Settings.Advance.JWTMaxRefreshHours) * time.Hour,
 		TokenHeadName: config.Settings.Advance.JWTHeadName,
+		SendCookie:    true,
 		PayloadFunc:   payloadFunc(),
 		Authenticator: authenticator(),
 		Authorizator:  authorizator(),
@@ -64,10 +65,10 @@ func authenticator() func(c *gin.Context) (any, error) {
 			return "", ErrUserNotFound
 		}
 		if user.Password != payload.Password {
-			return "", errors.New("Invalid password")
+			return "", ErrPasswordInvalid
 		}
 		log.Printf("User %v logged in", user)
-		return &user, ErrPasswordInvalid
+		return &user, nil
 	}
 }
 
