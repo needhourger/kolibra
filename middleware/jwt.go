@@ -40,12 +40,14 @@ func InitJWTMiddleware() *jwt.GinJWTMiddleware {
 	return middleware
 }
 
+// Api permission check callback
 func unauthorizated() func(c *gin.Context, code int, message string) {
 	return func(c *gin.Context, code int, message string) {
 		c.JSON(code, gin.H{"message": message})
 	}
 }
 
+// Api permission check function
 func authorizator() func(data any, c *gin.Context) bool {
 	return func(data any, c *gin.Context) bool {
 		user, ok := data.(*database.User)
@@ -60,6 +62,7 @@ func authorizator() func(data any, c *gin.Context) bool {
 	}
 }
 
+// Auth api handler
 func authenticator() func(c *gin.Context) (any, error) {
 	return func(c *gin.Context) (any, error) {
 		var payload LoginPayload
