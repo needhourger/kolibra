@@ -8,5 +8,5 @@ import (
 
 func ScanLibrary(c *gin.Context) {
 	go library.ScanLibrary()
-	c.JSON(200, nil)
+	c.JSON(200, gin.H{"message": "Scan running background"})
 }
