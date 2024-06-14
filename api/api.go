@@ -3,15 +3,13 @@ package api
 import (
 	"kolibra/middleware"
 
-	jwt "github.com/appleboy/gin-jwt"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
 func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
 	// apiBase := r.Group("/apiBase", middleware.JWTAuthMiddleware())
 	apiBase := engine.Group("/api")
-	// Test api
-	apiBase.GET("/ping", Ping)
 
 	// No auth api
 	apiBase.POST("/auth", jwtMiddleware.LoginHandler)

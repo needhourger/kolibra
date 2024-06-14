@@ -21,9 +21,9 @@ func CreateUser(user *User) error {
 }
 
 // Retrieve a user by ID
-func GetUserByID(id uint) (*User, error) {
+func GetUserByID(id string) (*User, error) {
 	var user User
-	err := db.First(&user, id).Error
+	err := db.First(&user, "id = ?", id).Error
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	jwt "github.com/appleboy/gin-jwt"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,21 +23,39 @@ var (
 )
 
 func InitJWTMiddleware() *jwt.GinJWTMiddleware {
-	middleware := &jwt.GinJWTMiddleware{
-		Realm:         "Kolibra",
-		Key:           []byte(config.Settings.Advance.JWTSecretKey),
-		Timeout:       time.Duration(config.Settings.Advance.JWTTimeoutHours) * time.Hour,
-		MaxRefresh:    time.Duration(config.Settings.Advance.JWTMaxRefreshHours) * time.Hour,
-		TokenHeadName: config.Settings.Advance.JWTHeadName,
-		SendCookie:    true,
-		PayloadFunc:   payloadFunc(),
-		Authenticator: authenticator(),
-		Authorizator:  authorizator(),
-		Unauthorized:  unauthorizated(),
-		TokenLookup:   "header:Authorization, query: token, cookie: jwt",
-		TimeFunc:      time.Now,
+	middleware, err := jwt.New(&jwt.GinJWTMiddleware{
+		Realm:           "kolibra",
+		Key:             []byte(config.Settings.Advance.JWTSecretKey),
+		Timeout:         time.Duration(config.Settings.Advance.JWTTimeoutHours) * time.Hour,
+		MaxRefresh:      time.Duration(config.Settings.Advance.JWTMaxRefreshHours) * time.Hour,
+		IdentityKey:     config.Settings.Advance.JWTIdentityKey,
+		TokenHeadName:   config.Settings.Advance.JWTHeadName,
+		TokenLookup:     "header: Authorization, query: token, cookie: jwt",
+		SendCookie:      true,
+		TimeFunc:        time.Now,
+		PayloadFunc:     payloadFunc(),
+		IdentityHandler: identityHandler(),
+		Authenticator:   authenticator(),
+		Authorizator:    authorizator(),
+		Unauthorized:    unauthorizated(),
+	})
+	if err != nil {
+		log.Fatalf("JWT init error %v", err)
 	}
 	return middleware
+}
+
+func identityHandler() func(c *gin.Context) any {
+	return func(c *gin.Context) any {
+		claims := jwt.ExtractClaims(c)
+		log.Printf("JWT claims %v", claims[config.Settings.Advance.JWTIdentityKey])
+		user, err := database.GetUserByID(claims[config.Settings.Advance.JWTIdentityKey].(string))
+		if err != nil {
+			log.Printf("JWT user fetch error: %v", err)
+			return nil
+		}
+		return user
+	}
 }
 
 // Api permission check callback
@@ -52,6 +70,7 @@ func authorizator() func(data any, c *gin.Context) bool {
 	return func(data any, c *gin.Context) bool {
 		user, ok := data.(*database.User)
 		if !ok {
+			log.Println("JWT user convert failed")
 			return false
 		}
 		requestPath := c.Request.URL.Path
@@ -77,15 +96,16 @@ func authenticator() func(c *gin.Context) (any, error) {
 			return "", ErrPasswordInvalid
 		}
 		log.Printf("User %v logged in", user)
-		return &user, nil
+		return user, nil
 	}
 }
 
 func payloadFunc() func(data any) jwt.MapClaims {
 	return func(data any) jwt.MapClaims {
 		if v, ok := data.(*database.User); ok {
-			return jwt.MapClaims{"user": v}
+			return jwt.MapClaims{config.Settings.Advance.JWTIdentityKey: v.ID}
 		}
+		log.Println("JWT payloadFunc user convert failed")
 		return jwt.MapClaims{}
 	}
 }

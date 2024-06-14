@@ -49,8 +49,9 @@ func extractTxt(book *database.Book) error {
 			}
 			preChapter = curChapter
 			curChapter = &database.Chapter{
-				Title:  strings.Trim(line, " "),
-				Start:  pos - int64(txtReader.Reader.Size()),
+				Title: strings.Trim(line, " "),
+				// Start:  pos - int64(txtReader.Reader.Size()),
+				Start:  pos,
 				BookID: book.ID,
 			}
 			log.Printf("Title: %s, Start: %d", curChapter.Title, curChapter.Start)
