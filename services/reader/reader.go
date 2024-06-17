@@ -57,39 +57,35 @@ func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (any, e
 	return doc.(*fitz.Document).SVG(int(chapter.Start))
 }
 
-type ReaderObject struct {
-	F      *os.File
-	Reader *bufio.Reader
+func createEncodedReader(f *os.File, coding string) *bufio.Reader {
+	var reader *bufio.Reader
+	if coding != "utf-8" {
+		transformedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder())
+		reader = bufio.NewReader(transformedReader)
+	} else {
+		reader = bufio.NewReader(f)
+	}
+	return reader
 }
 
 func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, error) {
-	rdObject, found := readerCache.Get(book.Path)
+	var f *os.File
+	var err error
+	foundedF, found := readerCache.Get(book.Path)
 	if !found {
-		f, err := os.OpenFile(book.Path, os.O_RDONLY, 0)
+		f, err = os.OpenFile(book.Path, os.O_RDONLY, 0)
 		if err != nil {
 			return "", err
 		}
-		if _, err := f.Seek(chapter.Start, io.SeekStart); err != nil {
-			return "", err
-		}
-		var reader *bufio.Reader
-		if book.Coding != "utf-8" {
-			transformedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder())
-			reader = bufio.NewReader(transformedReader)
-		} else {
-			reader = bufio.NewReader(f)
-		}
-
-		bytes := make([]byte, chapter.Length)
-		_, err = io.ReadFull(reader, bytes)
-		readerCache.Set(book.Path, &ReaderObject{F: f, Reader: reader}, cache.DefaultExpiration)
-		return string(bytes), err
+	} else {
+		f = foundedF.(*os.File)
 	}
 
-	if _, err := rdObject.(*ReaderObject).F.Seek(chapter.Start, io.SeekStart); err != nil {
+	if _, err := f.Seek(chapter.Start, io.SeekStart); err != nil {
 		return "", err
 	}
+	reader := createEncodedReader(f, book.Coding)
 	bytes := make([]byte, chapter.Length)
-	_, err := io.ReadFull(rdObject.(*ReaderObject).Reader, bytes)
+	_, err = io.ReadFull(reader, bytes)
 	return string(bytes), err
 }

@@ -31,7 +31,8 @@ func extractTxt(book *database.Book) error {
 	}
 	defer f.Close()
 
-	reader := bufio.NewReader(f)
+	var reader *bufio.Reader
+	reader = bufio.NewReader(f)
 	dumpedBytes, err := reader.Peek(1024)
 	f.Seek(0, io.SeekStart)
 	reader.Reset(f)
@@ -44,6 +45,7 @@ func extractTxt(book *database.Book) error {
 	log.Printf("Detected coding: %s", codingName)
 	if codingName != "utf-8" {
 		transformedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder())
+		reader = bufio.NewReader(transformedReader)
 		scanner = bufio.NewScanner(transformedReader)
 	} else {
 		scanner = bufio.NewScanner(reader)
@@ -67,7 +69,7 @@ func extractTxt(book *database.Book) error {
 			preChapter = curChapter
 			curChapter = &database.Chapter{
 				Title:  strings.Trim(line, " "),
-				Start:  pos,
+				Start:  pos - int64(reader.Buffered()),
 				BookID: book.ID,
 			}
 			log.Printf("Title: %s, Start: %d", curChapter.Title, curChapter.Start)
