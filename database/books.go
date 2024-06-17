@@ -11,6 +11,7 @@ type Book struct {
 	Path       string
 	TitleRegex string `gorm:"default:''"`
 	Hash       string `gorm:"unique"`
+	Coding     string `gorm:"defaulr:'utf-8'"`
 	Ready      bool
 }
 
@@ -46,10 +47,10 @@ func GetBookByID(id string) (Book, error) {
 	return book, err
 }
 
-func CheckBookFileHash(hash string) bool {
+func CheckBookFileHash(hash string) (*Book, bool) {
 	book := Book{}
 	err := db.Where("hash = ?", hash).First(&book).Error
-	return err == nil
+	return &book, err == nil
 }
 
 func DeleteBookByID(id string) error {

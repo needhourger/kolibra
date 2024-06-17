@@ -1,15 +1,18 @@
 package reader
 
 import (
+	"bufio"
 	"errors"
 	"io"
 	"kolibra/config"
 	"kolibra/database"
-	"kolibra/tools"
+	"os"
 	"time"
 
 	"github.com/gen2brain/go-fitz"
 	"github.com/patrickmn/go-cache"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 )
 
 var readerCache *cache.Cache
@@ -54,27 +57,39 @@ func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (any, e
 	return doc.(*fitz.Document).SVG(int(chapter.Start))
 }
 
+type ReaderObject struct {
+	F      *os.File
+	Reader *bufio.Reader
+}
+
 func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, error) {
-	reader, found := readerCache.Get(book.Path)
+	rdObject, found := readerCache.Get(book.Path)
 	if !found {
-		txtReader, err := tools.OpenTxtByEncode(book.Path)
+		f, err := os.OpenFile(book.Path, os.O_RDONLY, 0)
 		if err != nil {
 			return "", err
 		}
-		if _, err := txtReader.F.Seek(chapter.Start, io.SeekStart); err != nil {
+		if _, err := f.Seek(chapter.Start, io.SeekStart); err != nil {
 			return "", err
 		}
+		var reader *bufio.Reader
+		if book.Coding != "utf-8" {
+			transformedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder())
+			reader = bufio.NewReader(transformedReader)
+		} else {
+			reader = bufio.NewReader(f)
+		}
+
 		bytes := make([]byte, chapter.Length)
-		_, err = io.ReadFull(txtReader.Reader, bytes)
-		readerCache.Set(book.Path, txtReader, cache.DefaultExpiration)
+		_, err = io.ReadFull(reader, bytes)
+		readerCache.Set(book.Path, &ReaderObject{F: f, Reader: reader}, cache.DefaultExpiration)
 		return string(bytes), err
 	}
 
-	txtReader := reader.(*tools.TxtReader)
-	if _, err := txtReader.F.Seek(chapter.Start, io.SeekStart); err != nil {
+	if _, err := rdObject.(*ReaderObject).F.Seek(chapter.Start, io.SeekStart); err != nil {
 		return "", err
 	}
 	bytes := make([]byte, chapter.Length)
-	_, err := io.ReadFull(txtReader.Reader, bytes)
+	_, err := io.ReadFull(rdObject.(*ReaderObject).Reader, bytes)
 	return string(bytes), err
 }

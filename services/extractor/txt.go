@@ -1,13 +1,18 @@
 package extractor
 
 import (
+	"bufio"
 	"io"
 	"kolibra/config"
 	"kolibra/database"
-	"kolibra/tools"
 	"log"
+	"os"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/html/charset"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 )
 
 func isStringTitle(reg string, str string) bool {
@@ -20,11 +25,30 @@ func isStringTitle(reg string, str string) bool {
 }
 
 func extractTxt(book *database.Book) error {
-	txtReader, err := tools.OpenTxtByEncode(book.Path)
+	f, err := os.OpenFile(book.Path, os.O_RDONLY, 0)
 	if err != nil {
 		return err
 	}
-	defer txtReader.F.Close()
+	defer f.Close()
+
+	reader := bufio.NewReader(f)
+	dumpedBytes, err := reader.Peek(1024)
+	f.Seek(0, io.SeekStart)
+	reader.Reset(f)
+	if err != nil {
+		return err
+	}
+
+	var scanner *bufio.Scanner
+	_, codingName, _ := charset.DetermineEncoding(dumpedBytes, "text/plain")
+	log.Printf("Detected coding: %s", codingName)
+	if codingName != "utf-8" {
+		transformedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder())
+		scanner = bufio.NewScanner(transformedReader)
+	} else {
+		scanner = bufio.NewScanner(reader)
+	}
+
 	var preChapter, curChapter *database.Chapter
 	var reg string
 	if book.TitleRegex == "" {
@@ -32,17 +56,10 @@ func extractTxt(book *database.Book) error {
 	} else {
 		reg = book.TitleRegex
 	}
-	for {
-		bytes, _, err := txtReader.Reader.ReadLine()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-		line := string(bytes)
+	for scanner.Scan() {
+		line := scanner.Text()
 		if isStringTitle(reg, line) {
-			pos, err := txtReader.F.Seek(0, io.SeekCurrent)
+			pos, err := f.Seek(0, io.SeekCurrent)
 			if err != nil {
 				log.Printf("Failed to get position: %s", err)
 				continue
@@ -50,7 +67,7 @@ func extractTxt(book *database.Book) error {
 			preChapter = curChapter
 			curChapter = &database.Chapter{
 				Title:  strings.Trim(line, " "),
-				Start:  pos - int64(txtReader.Reader.Buffered()),
+				Start:  pos,
 				BookID: book.ID,
 			}
 			log.Printf("Title: %s, Start: %d", curChapter.Title, curChapter.Start)
@@ -73,6 +90,7 @@ func extractTxt(book *database.Book) error {
 		}
 	}
 
+	book.Coding = codingName
 	book.Ready = true
 	err = database.UpdateBook(book)
 	if err != nil {

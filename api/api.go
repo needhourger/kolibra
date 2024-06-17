@@ -18,7 +18,7 @@ func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
 	// Auth api
 	// Book api
 	bookApi := apiBase.Group("/books")
-	bookApi.Use(jwtMiddleware.MiddlewareFunc())
+	// bookApi.Use(jwtMiddleware.MiddlewareFunc())
 	bookApi.GET("/", GetAllBooks)
 	bookApi.GET("/:id", GetBook)
 	bookApi.DELETE("/:id", DeleteBookByID)
@@ -27,7 +27,7 @@ func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
 	bookApi.GET("/:id/chapters/:cid/content", GetChapterContent)
 	// Library api
 	libraryApi := apiBase.Group("/library")
-	libraryApi.Use(jwtMiddleware.MiddlewareFunc())
+	// libraryApi.Use(jwtMiddleware.MiddlewareFunc())
 	libraryApi.GET("/scan", ScanLibrary)
 }
 

@@ -25,39 +25,42 @@ func extractFileName(path string, info fs.FileInfo) (string, string) {
 	}
 }
 
-func LoadBookByPath(path string, info fs.FileInfo) {
+func LoadBookByPath(path string, info fs.FileInfo, force bool) {
 	hash, err := tools.CalculateFileHash(path)
 	if err != nil {
 		log.Printf("Failed to calculate file hash: %s", err)
 		return
 	}
-	if database.CheckBookFileHash(hash) {
+	book, exist := database.CheckBookFileHash(hash)
+	if exist && !force {
 		log.Printf("Book already exists: %s", path)
 		return
 	}
-	author, title := extractFileName(path, info)
-	book := database.Book{
-		Title:     title,
-		Author:    author,
-		Extension: filepath.Ext(info.Name()),
-		Size:      info.Size(),
-		Path:      path,
-		Ready:     false,
-		Hash:      hash,
-	}
-	err = database.CreateBook(&book)
-	if err != nil {
-		log.Printf("Failed to load book: %s", err)
-		return
+	if !exist {
+		author, title := extractFileName(path, info)
+		book = &database.Book{
+			Title:     title,
+			Author:    author,
+			Extension: filepath.Ext(info.Name()),
+			Size:      info.Size(),
+			Path:      path,
+			Ready:     false,
+			Hash:      hash,
+		}
+		err = database.CreateBook(book)
+		if err != nil {
+			log.Printf("Failed to load book: %s", err)
+			return
+		}
 	}
 
-	err = extractor.Extract(&book)
+	err = extractor.Extract(book)
 	if err != nil {
 		log.Printf("Failed to extract book: %s", err)
 	}
 }
 
-func ScanLibrary() {
+func ScanLibrary(force bool) {
 	err := filepath.Walk(
 		config.Settings.Library,
 		func(path string, info fs.FileInfo, err error) error {
@@ -70,7 +73,7 @@ func ScanLibrary() {
 			for _, suffix := range config.Settings.BookExtension {
 				if strings.HasSuffix(info.Name(), suffix) {
 					log.Printf("Found book: %s", path)
-					LoadBookByPath(path, info)
+					LoadBookByPath(path, info, force)
 				}
 			}
 			return nil
