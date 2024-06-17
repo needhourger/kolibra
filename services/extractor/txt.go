@@ -69,7 +69,7 @@ func extractTxt(book *database.Book) error {
 			preChapter = curChapter
 			curChapter = &database.Chapter{
 				Title:  strings.Trim(line, " "),
-				Start:  pos - int64(reader.Buffered()),
+				Start:  pos - int64(reader.Size()),
 				BookID: book.ID,
 			}
 			log.Printf("Title: %s, Start: %d", curChapter.Title, curChapter.Start)
@@ -92,6 +92,7 @@ func extractTxt(book *database.Book) error {
 		}
 	}
 
+	book.Coding = codingName
 	book.Ready = true
 	err = database.UpdateBook(book)
 	if err != nil {
