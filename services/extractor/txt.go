@@ -92,7 +92,6 @@ func extractTxt(book *database.Book) error {
 		}
 	}
 
-	book.Coding = codingName
 	book.Ready = true
 	err = database.UpdateBook(book)
 	if err != nil {

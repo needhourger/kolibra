@@ -11,7 +11,6 @@ type Book struct {
 	Path       string
 	TitleRegex string `gorm:"default:''"`
 	Hash       string `gorm:"unique"`
-	Coding     string `gorm:"defaulr:'utf-8'"`
 	Ready      bool
 }
 
