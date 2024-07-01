@@ -15,6 +15,11 @@ import (
 
 var readerCache *cache.Cache
 
+var (
+	ErrFileType          = errors.New("Pool already exists!")
+	ErrReaderPoolExisted = errors.New("Pool already exists!")
+)
+
 func CreateReaderCache() error {
 	if readerCache == nil {
 		readerCache = cache.New(
@@ -23,7 +28,7 @@ func CreateReaderCache() error {
 		)
 		return nil
 	}
-	return errors.New("Pool already exists!")
+	return ErrReaderPoolExisted
 }
 
 func ReadChapter(book *database.Book, chapter *database.Chapter) (any, error) {
@@ -35,7 +40,7 @@ func ReadChapter(book *database.Book, chapter *database.Chapter) (any, error) {
 	case ".pdf":
 		return ReadChapterEPUB_PDF(book, chapter)
 	}
-	return "", errors.New("Unsupported file type")
+	return "", ErrFileType
 }
 
 func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (any, error) {
@@ -47,12 +52,10 @@ func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (any, e
 			return "", err
 		}
 		readerCache.Set(book.Path, doc, cache.DefaultExpiration)
-		// return doc.HTML(int(chapter.Start), false)
-		return doc.SVG(int(chapter.Start))
+		return doc.HTML(int(chapter.Start), false)
 	}
 
-	// return doc.(*fitz.Document).HTML(int(chapter.Start), false)
-	return doc.(*fitz.Document).SVG(int(chapter.Start))
+	return doc.(*fitz.Document).HTML(int(chapter.Start), false)
 }
 
 func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, error) {
