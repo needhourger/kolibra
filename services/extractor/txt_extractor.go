@@ -70,13 +70,16 @@ func extractTxt(book *DB.Book) error {
 		log.Printf("Found Title: %s", line)
 
 		currentChapter = &DB.Chapter{
-			Title:  line,
-			BookID: book.ID,
-			Start:  int64(currentPos),
+			ModelBase: DB.ModelBase{ID: DB.GenerateShortUUID()},
+			Title:     line,
+			BookID:    book.ID,
+			Start:     int64(currentPos),
 		}
 		if previousChapter != nil {
+			currentChapter.PreviousChapterID = previousChapter.ID
 			previousChapter.End = currentPos - int64(bytesLength)
 			previousChapter.Length = previousChapter.End - previousChapter.Start
+			previousChapter.NextChapterID = currentChapter.ID
 			DB.CreateChapter(previousChapter)
 		}
 		previousChapter = currentChapter
