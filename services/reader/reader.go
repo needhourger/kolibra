@@ -1,18 +1,16 @@
 package reader
 
 import (
-	"bufio"
 	"errors"
 	"io"
 	"kolibra/config"
 	"kolibra/database"
+	"kolibra/tools"
 	"os"
 	"time"
 
 	"github.com/gen2brain/go-fitz"
 	"github.com/patrickmn/go-cache"
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"golang.org/x/text/transform"
 )
 
 var readerCache *cache.Cache
@@ -57,17 +55,6 @@ func ReadChapterEPUB_PDF(book *database.Book, chapter *database.Chapter) (any, e
 	return doc.(*fitz.Document).SVG(int(chapter.Start))
 }
 
-func createEncodedReader(f *os.File, coding string) *bufio.Reader {
-	var reader *bufio.Reader
-	if coding != "utf-8" {
-		transformedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder())
-		reader = bufio.NewReader(transformedReader)
-	} else {
-		reader = bufio.NewReader(f)
-	}
-	return reader
-}
-
 func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, error) {
 	var f *os.File
 	var err error
@@ -84,8 +71,13 @@ func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, err
 	if _, err := f.Seek(chapter.Start, io.SeekStart); err != nil {
 		return "", err
 	}
-	reader := createEncodedReader(f, book.Coding)
-	bytes := make([]byte, chapter.Length)
-	_, err = io.ReadFull(reader, bytes)
-	return string(bytes), err
+	buf := make([]byte, chapter.Length)
+	_, err = io.ReadFull(f, buf)
+	if err != nil {
+		return "", err
+	}
+	if book.Coding == "utf-8" {
+		return string(buf), nil
+	}
+	return tools.Gbk2utf8String(buf)
 }
