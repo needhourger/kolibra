@@ -2,101 +2,74 @@ package extractor
 
 import (
 	"bufio"
-	"io"
 	"kolibra/config"
 	"kolibra/database"
+	"kolibra/tools"
 	"log"
 	"os"
-	"regexp"
 	"strings"
-
-	"golang.org/x/net/html/charset"
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"golang.org/x/text/transform"
 )
 
-func isStringTitle(reg string, str string) bool {
-	isTitle, err := regexp.MatchString(reg, str)
-	if err != nil {
-		log.Printf("Failed to match title: %s", err)
-		return false
+func getBookReg(book *database.Book) string {
+	if book.TitleRegex != "" {
+		return book.TitleRegex
 	}
-	return isTitle
+	return config.Settings.DefaultTitleRegex
 }
 
 func extractTxt(book *database.Book) error {
+	fileEncoded, err := tools.GetFileEncoded(book.Path)
+	if err != nil {
+		return err
+	}
+	isUTF8 := fileEncoded == "utf-8"
 	f, err := os.OpenFile(book.Path, os.O_RDONLY, 0)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	var reader *bufio.Reader
-	reader = bufio.NewReader(f)
-	dumpedBytes, err := reader.Peek(1024)
-	f.Seek(0, io.SeekStart)
-	reader.Reset(f)
-	if err != nil {
-		return err
-	}
+	reg := getBookReg(book)
 
-	var scanner *bufio.Scanner
-	_, codingName, _ := charset.DetermineEncoding(dumpedBytes, "text/plain")
-	log.Printf("Detected coding: %s", codingName)
-	if codingName != "utf-8" {
-		transformedReader := transform.NewReader(f, simplifiedchinese.GBK.NewDecoder())
-		reader = bufio.NewReader(transformedReader)
-		scanner = bufio.NewScanner(transformedReader)
-	} else {
-		scanner = bufio.NewScanner(reader)
-	}
-
-	var preChapter, curChapter *database.Chapter
-	var reg string
-	if book.TitleRegex == "" {
-		reg = config.Settings.DefaultTitleRegex
-	} else {
-		reg = book.TitleRegex
-	}
+	var currentPos int64 = 0
+	var currentChapter, previousChapter *database.Chapter
+	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		line := scanner.Text()
-		if isStringTitle(reg, line) {
-			pos, err := f.Seek(0, io.SeekCurrent)
-			if err != nil {
-				log.Printf("Failed to get position: %s", err)
-				continue
-			}
-			preChapter = curChapter
-			curChapter = &database.Chapter{
-				Title:  strings.Trim(line, " "),
-				Start:  pos - int64(reader.Size()),
-				BookID: book.ID,
-			}
-			log.Printf("Title: %s, Start: %d", curChapter.Title, curChapter.Start)
-			if preChapter != nil {
-				preChapter.End = curChapter.Start - 1
-				preChapter.Length = preChapter.End - preChapter.Start
-				err = database.CreateChapter(preChapter)
-				if err != nil {
-					log.Printf("Failed to create chapter: %s", err)
-				}
-			}
+		rawBytes := scanner.Bytes()
+		bytesLength := len(rawBytes)
+		currentPos += int64(bytesLength)
+		var line string
+		if isUTF8 {
+			line, _ = tools.Gbk2utf8String(rawBytes)
+		} else {
+			line = string(rawBytes)
 		}
-	}
-	if curChapter != nil {
-		curChapter.End = book.Size
-		curChapter.Length = curChapter.End - curChapter.Start
-		err = database.CreateChapter(curChapter)
-		if err != nil {
-			log.Printf("Failed to create chapter: %s", err)
+
+		if match, _ := tools.IsMatchString(line, reg); !match {
+			continue
 		}
+
+		line = strings.Trim(line, " ")
+		log.Printf("Found Title: %s", line)
+
+		currentChapter = &database.Chapter{
+			Title:  line,
+			BookID: book.ID,
+			Start:  int64(currentPos),
+		}
+		if previousChapter != nil {
+			previousChapter.End = currentPos - int64(bytesLength)
+			database.CreateChapter(previousChapter)
+		}
+		previousChapter = currentChapter
 	}
 
-	book.Coding = codingName
-	book.Ready = true
-	err = database.UpdateBook(book)
-	if err != nil {
-		return err
+	if currentChapter != nil {
+		currentChapter.End = currentPos
+		database.CreateChapter(currentChapter)
 	}
-	return nil
+
+	book.Coding = fileEncoded
+	book.Ready = true
+	return database.UpdateBook(book)
 }
