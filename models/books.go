@@ -1,4 +1,4 @@
-package database
+package models
 
 type Book struct {
 	ModelBase
@@ -17,13 +17,15 @@ type Book struct {
 
 type Chapter struct {
 	ModelBase
-	Title  string
-	Start  int64
-	End    int64
-	Length int64
-	Level  int `gorm:"default:1"`
-	URI    string
-	BookID string
+	Title             string
+	Start             int64
+	End               int64
+	Length            int64
+	Level             int `gorm:"default:1"`
+	URI               string
+	BookID            string
+	PreviousChapterID string `gorm:"default:''"`
+	NextChapterID     string `gorm:"default:''"`
 }
 
 // Book CRUD

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"io"
 	"kolibra/config"
-	"kolibra/database"
+	DB "kolibra/models"
 	"kolibra/tools"
 	"os"
 	"time"
@@ -30,7 +30,7 @@ func CreateReaderCache() error {
 	return ErrReaderPoolExisted
 }
 
-func ReadChapter(book *database.Book, chapter *database.Chapter) (any, error) {
+func ReadChapter(book *DB.Book, chapter *DB.Chapter) (any, error) {
 	switch book.Extension {
 	case ".txt":
 		return ReadChapterTXT(book, chapter)
@@ -38,7 +38,7 @@ func ReadChapter(book *database.Book, chapter *database.Chapter) (any, error) {
 	return "", ErrFileType
 }
 
-func ReadChapterTXT(book *database.Book, chapter *database.Chapter) (string, error) {
+func ReadChapterTXT(book *DB.Book, chapter *DB.Chapter) (string, error) {
 	var f *os.File
 	var err error
 	foundedF, found := readerCache.Get(book.Path)

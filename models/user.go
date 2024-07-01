@@ -1,4 +1,4 @@
-package database
+package models
 
 type User struct {
 	ModelBase

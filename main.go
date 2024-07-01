@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"kolibra/api"
 	"kolibra/config"
-	"kolibra/database"
+	DB "kolibra/models"
 	"kolibra/services/reader"
 	"log"
 )
@@ -15,7 +15,7 @@ func main() {
 	reader.CreateReaderCache()
 
 	// Connect to database
-	err := database.InitDatabase()
+	err := DB.InitDatabase()
 	if err != nil {
 		log.Panicf("Failed to connect to database: %v", err)
 	}

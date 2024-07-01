@@ -1,7 +1,7 @@
 package api
 
 import (
-	"kolibra/database"
+	DB "kolibra/models"
 	"kolibra/services/reader"
 	"log"
 
@@ -9,7 +9,7 @@ import (
 )
 
 func GetAllBooks(c *gin.Context) {
-	books, err := database.GetAllBooks()
+	books, err := DB.GetAllBooks()
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -20,7 +20,7 @@ func GetAllBooks(c *gin.Context) {
 
 func GetBook(c *gin.Context) {
 	bookID := c.Param("id")
-	book, err := database.GetBookByID(bookID)
+	book, err := DB.GetBookByID(bookID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -31,11 +31,11 @@ func GetBook(c *gin.Context) {
 
 func GetBookChapters(c *gin.Context) {
 	bookID := c.Param("id")
-	if _, err := database.GetBookByID(bookID); err != nil {
+	if _, err := DB.GetBookByID(bookID); err != nil {
 		c.JSON(404, gin.H{"error": "No such book"})
 		return
 	}
-	chapters, err := database.GetChaptersByBookID(bookID)
+	chapters, err := DB.GetChaptersByBookID(bookID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -47,7 +47,7 @@ func GetBookChapters(c *gin.Context) {
 func GetBookChapter(c *gin.Context) {
 	bookID := c.Param("id")
 	chapterID := c.Param("cid")
-	book, err := database.GetBookByID(bookID)
+	book, err := DB.GetBookByID(bookID)
 	if err != nil {
 		c.JSON(404, gin.H{"error": "No such Book"})
 		return
@@ -63,7 +63,7 @@ func GetBookChapter(c *gin.Context) {
 func GetChapterContent(c *gin.Context) {
 	bookID := c.Param("id")
 	chapterID := c.Param("cid")
-	book, err := database.GetBookByID(bookID)
+	book, err := DB.GetBookByID(bookID)
 	if err != nil {
 		c.JSON(404, gin.H{"error": "No such Book"})
 		return
@@ -83,11 +83,11 @@ func GetChapterContent(c *gin.Context) {
 
 func DeleteBookByID(c *gin.Context) {
 	bookID := c.Param("id")
-	if _, err := database.GetBookByID(bookID); err != nil {
+	if _, err := DB.GetBookByID(bookID); err != nil {
 		c.JSON(404, gin.H{"error": "No such book"})
 		return
 	}
-	err := database.DeleteBookByID(bookID)
+	err := DB.DeleteBookByID(bookID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return

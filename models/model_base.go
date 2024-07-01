@@ -1,4 +1,4 @@
-package database
+package models
 
 import (
 	"encoding/hex"
@@ -15,7 +15,7 @@ type ModelBase struct {
 	DeleteAt  gorm.DeletedAt `gorm:"index"`
 }
 
-func generateShortUUID() (string, error) {
+func GenerateShortUUID() (string, error) {
 	u, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
@@ -28,10 +28,12 @@ func generateShortUUID() (string, error) {
 }
 
 func (model *ModelBase) BeforeCreate(tx *gorm.DB) (err error) {
-	uuidHex, err := generateShortUUID()
+	uuidHex, err := GenerateShortUUID()
 	if err != nil {
 		return err
 	}
-	model.ID = uuidHex
+	if model.ID == "" {
+		model.ID = uuidHex
+	}
 	return
 }

@@ -4,14 +4,14 @@ import (
 	"bufio"
 	"bytes"
 	"kolibra/config"
-	"kolibra/database"
+	DB "kolibra/models"
 	"kolibra/tools"
 	"log"
 	"os"
 	"strings"
 )
 
-func getBookReg(book *database.Book) string {
+func getBookReg(book *DB.Book) string {
 	if book.TitleRegex != "" {
 		return book.TitleRegex
 	}
@@ -31,7 +31,7 @@ func txtSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error
 	return 0, nil, nil
 }
 
-func extractTxt(book *database.Book) error {
+func extractTxt(book *DB.Book) error {
 	fileEncoded, err := tools.GetFileEncoded(book.Path)
 	if err != nil {
 		return err
@@ -47,7 +47,7 @@ func extractTxt(book *database.Book) error {
 	reg := getBookReg(book)
 
 	var currentPos int64 = 0
-	var currentChapter, previousChapter *database.Chapter
+	var currentChapter, previousChapter *DB.Chapter
 	scanner := bufio.NewScanner(f)
 	scanner.Split(txtSplitFunc)
 	for scanner.Scan() {
@@ -69,7 +69,7 @@ func extractTxt(book *database.Book) error {
 		line = strings.Trim(line, " \r\n")
 		log.Printf("Found Title: %s", line)
 
-		currentChapter = &database.Chapter{
+		currentChapter = &DB.Chapter{
 			Title:  line,
 			BookID: book.ID,
 			Start:  int64(currentPos),
@@ -77,7 +77,7 @@ func extractTxt(book *database.Book) error {
 		if previousChapter != nil {
 			previousChapter.End = currentPos - int64(bytesLength)
 			previousChapter.Length = previousChapter.End - previousChapter.Start
-			database.CreateChapter(previousChapter)
+			DB.CreateChapter(previousChapter)
 		}
 		previousChapter = currentChapter
 	}
@@ -85,10 +85,10 @@ func extractTxt(book *database.Book) error {
 	if currentChapter != nil {
 		currentChapter.End = currentPos
 		currentChapter.Length = currentChapter.End - currentChapter.Start
-		database.CreateChapter(currentChapter)
+		DB.CreateChapter(currentChapter)
 	}
 
 	book.Coding = fileEncoded
 	book.Ready = true
-	return database.UpdateBook(book)
+	return DB.UpdateBook(book)
 }

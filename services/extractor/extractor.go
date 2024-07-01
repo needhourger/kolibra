@@ -2,10 +2,10 @@ package extractor
 
 import (
 	"errors"
-	"kolibra/database"
+	DB "kolibra/models"
 )
 
-func Extract(book *database.Book) error {
+func Extract(book *DB.Book) error {
 	switch book.Extension {
 	case ".txt":
 		return extractTxt(book)
