@@ -24,9 +24,10 @@ type Chapter struct {
 	Length            int64
 	Level             int `gorm:"default:1"`
 	URI               string
-	BookID            string
 	PreviousChapterID string `gorm:"default:''"`
 	NextChapterID     string `gorm:"default:''"`
+	BookID            string
+	Book              Book
 }
 
 // Book CRUD
