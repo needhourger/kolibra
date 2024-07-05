@@ -27,7 +27,6 @@ type Chapter struct {
 	PreviousChapterID string `gorm:"default:''"`
 	NextChapterID     string `gorm:"default:''"`
 	BookID            string
-	Book              Book
 }
 
 func CheckBookFileHash(hash string) (*Book, bool) {
