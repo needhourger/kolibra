@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	DB "kolibra/database"
+	"kolibra/database/model"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +12,7 @@ func RecordReading() gin.HandlerFunc {
 		user := GetUserFromJWT(ctx)
 		bookID := ctx.Param("id")
 		chapterID := ctx.Param("cid")
-		record := &DB.ReadingRecord{
+		record := &model.ReadingRecord{
 			UserID:    user.ID,
 			BookID:    bookID,
 			ChapterID: chapterID,

@@ -4,14 +4,15 @@ import (
 	"bufio"
 	"bytes"
 	"kolibra/config"
-	DB "kolibra/database"
+	"kolibra/database/dao"
+	"kolibra/database/model"
 	"kolibra/tools"
 	"log"
 	"os"
 	"strings"
 )
 
-func getBookReg(book *DB.Book) string {
+func getBookReg(book *model.Book) string {
 	if book.TitleRegex != "" {
 		return book.TitleRegex
 	}
@@ -31,7 +32,7 @@ func txtSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error
 	return 0, nil, nil
 }
 
-func extractTxt(book *DB.Book) error {
+func extractTxt(book *model.Book) error {
 	fileEncoded, err := tools.GetFileEncoded(book.Path)
 	if err != nil {
 		return err
@@ -47,7 +48,7 @@ func extractTxt(book *DB.Book) error {
 	reg := getBookReg(book)
 
 	var currentPos int64 = 0
-	var currentChapter, previousChapter *DB.Chapter
+	var currentChapter, previousChapter *model.Chapter
 	scanner := bufio.NewScanner(f)
 	scanner.Split(txtSplitFunc)
 	for scanner.Scan() {
@@ -69,8 +70,8 @@ func extractTxt(book *DB.Book) error {
 		line = strings.Trim(line, " \r\n")
 		log.Printf("Found Title: %s", line)
 
-		currentChapter = &DB.Chapter{
-			ModelBase: DB.ModelBase{ID: DB.GenerateShortUUID()},
+		currentChapter = &model.Chapter{
+			ModelBase: model.ModelBase{ID: model.GenerateShortUUID()},
 			Title:     line,
 			BookID:    book.ID,
 			Start:     int64(currentPos),
@@ -80,7 +81,9 @@ func extractTxt(book *DB.Book) error {
 			previousChapter.End = currentPos - int64(bytesLength)
 			previousChapter.Length = previousChapter.End - previousChapter.Start
 			previousChapter.NextChapterID = currentChapter.ID
-			DB.CreateChapter(previousChapter)
+			if err := dao.ChapterDAO.Create(previousChapter); err != nil {
+				log.Printf("Create previous chapter error: %v", err)
+			}
 		}
 		previousChapter = currentChapter
 	}
@@ -88,10 +91,12 @@ func extractTxt(book *DB.Book) error {
 	if currentChapter != nil {
 		currentChapter.End = currentPos
 		currentChapter.Length = currentChapter.End - currentChapter.Start
-		DB.CreateChapter(currentChapter)
+		if err := dao.ChapterDAO.Create(currentChapter); err != nil {
+			log.Printf("Create currentChapter error: %v", err)
+		}
 	}
 
 	book.Coding = fileEncoded
 	book.Ready = true
-	return DB.UpdateBook(book)
+	return dao.BookDAO.Update(book)
 }

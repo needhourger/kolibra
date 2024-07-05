@@ -1,4 +1,4 @@
-package database
+package model
 
 type User struct {
 	ModelBase
@@ -42,10 +42,7 @@ func GetUserByUsername(name string) (*User, error) {
 func CheckUserByName(name string) bool {
 	var user User
 	err := db.Where("username = ?", name).First(&user).Error
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 // Update a user

@@ -1,4 +1,4 @@
-package database
+package model
 
 type Book struct {
 	ModelBase
@@ -31,12 +31,12 @@ type Chapter struct {
 
 func CheckBookFileHash(hash string) (*Book, bool) {
 	book := &Book{}
-	err := db.Where("hash = ?", hash).First(book).Error
+	err := GetInstance().Where("hash = ?", hash).First(book).Error
 	return book, err == nil
 }
 
 func (book *Book) GetChapterByID(cid any) (*Chapter, error) {
 	chapter := &Chapter{}
-	err := db.Model(book).Where("id = ?", cid).Association("Chapters").Find(chapter, "id = ?", cid)
+	err := GetInstance().Model(book).Where("id = ?", cid).Association("Chapters").Find(chapter, "id = ?", cid)
 	return chapter, err
 }

@@ -3,7 +3,8 @@ package library
 import (
 	"io/fs"
 	"kolibra/config"
-	DB "kolibra/database"
+	"kolibra/database/dao"
+	"kolibra/database/model"
 	"kolibra/services/extractor"
 	"kolibra/tools"
 	"log"
@@ -31,14 +32,14 @@ func LoadBookByPath(path string, info fs.FileInfo, force bool) {
 		log.Printf("Failed to calculate file hash: %s", err)
 		return
 	}
-	book, exist := DB.CheckBookFileHash(hash)
+	book, exist := model.CheckBookFileHash(hash)
 	if exist && !force {
 		log.Printf("Book already exists: %s", path)
 		return
 	}
 	if !exist {
 		author, title := extractFileName(path, info)
-		book = &DB.Book{
+		book = &model.Book{
 			Title:     title,
 			Author:    author,
 			Extension: filepath.Ext(info.Name()),
@@ -47,7 +48,7 @@ func LoadBookByPath(path string, info fs.FileInfo, force bool) {
 			Ready:     false,
 			Hash:      hash,
 		}
-		err = DB.CreateBook(book)
+		err = dao.BookDAO.Create(book)
 		if err != nil {
 			log.Printf("Failed to load book: %s", err)
 			return

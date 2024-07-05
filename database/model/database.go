@@ -1,4 +1,4 @@
-package database
+package model
 
 import (
 	"kolibra/config"
@@ -14,21 +14,25 @@ var (
 	once sync.Once
 )
 
-func GetInstance() (*gorm.DB, error) {
-	var err error
+func InitDatabase() {
 	once.Do(func() {
+		var err error
 		db, err = gorm.Open(sqlite.Open(config.Settings.Database), &gorm.Config{})
 		if err == nil {
 			db.AutoMigrate(&User{}, &Book{}, &Chapter{}, &ReadingRecord{})
 			adminUser := User{Username: "admin", Password: "admin", Role: ADMIN, Email: ""}
 			db.FirstOrCreate(&adminUser)
 			log.Printf("Admin user: %v", adminUser)
+		} else {
+			log.Fatalf("Open database error: %v", err)
 		}
 	})
-	return db, err
 }
 
-func InitDatabase() error {
-	_, err := GetInstance()
-	return err
+func GetInstance() *gorm.DB {
+	if db != nil {
+		return db
+	}
+	log.Fatalf("Database get instance nil: %v", db)
+	return nil
 }

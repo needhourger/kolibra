@@ -3,7 +3,8 @@ package middleware
 import (
 	"errors"
 	"kolibra/config"
-	DB "kolibra/database"
+	"kolibra/database/dao"
+	"kolibra/database/model"
 	"log"
 	"strings"
 	"time"
@@ -49,7 +50,7 @@ func identityHandler() func(c *gin.Context) any {
 	return func(c *gin.Context) any {
 		claims := jwt.ExtractClaims(c)
 		log.Printf("JWT claims %v", claims[config.Settings.Advance.JWTIdentityKey])
-		user, err := DB.GetUserByID(claims[config.Settings.Advance.JWTIdentityKey].(string))
+		user, err := dao.UserDAO.GetByID(claims[config.Settings.Advance.JWTIdentityKey].(string))
 		if err != nil {
 			log.Printf("JWT user fetch error: %v", err)
 			return nil
@@ -68,13 +69,13 @@ func unauthorizated() func(c *gin.Context, code int, message string) {
 // Api permission check function
 func authorizator() func(data any, c *gin.Context) bool {
 	return func(data any, c *gin.Context) bool {
-		user, ok := data.(*DB.User)
+		user, ok := data.(*model.User)
 		if !ok {
 			log.Println("JWT user convert failed")
 			return false
 		}
 		requestPath := c.Request.URL.Path
-		if strings.Contains(requestPath, "/api/admin") && user.Role != DB.ADMIN {
+		if strings.Contains(requestPath, "/api/admin") && user.Role != model.ADMIN {
 			return false
 		}
 		return true
@@ -88,7 +89,7 @@ func authenticator() func(c *gin.Context) (any, error) {
 		if err := c.Bind(&payload); err != nil {
 			return "", jwt.ErrMissingLoginValues
 		}
-		user, err := DB.GetUserByUsername(payload.Username)
+		user, err := model.GetUserByUsername(payload.Username)
 		if err != nil {
 			return "", ErrUserNotFound
 		}
@@ -102,7 +103,7 @@ func authenticator() func(c *gin.Context) (any, error) {
 
 func payloadFunc() func(data any) jwt.MapClaims {
 	return func(data any) jwt.MapClaims {
-		if v, ok := data.(*DB.User); ok {
+		if v, ok := data.(*model.User); ok {
 			return jwt.MapClaims{config.Settings.Advance.JWTIdentityKey: v.ID}
 		}
 		log.Println("JWT payloadFunc user convert failed")
@@ -110,7 +111,7 @@ func payloadFunc() func(data any) jwt.MapClaims {
 	}
 }
 
-func GetUserFromJWT(c *gin.Context) *DB.User {
-	identityUser := c.MustGet(config.Settings.Advance.JWTIdentityKey).(*DB.User)
+func GetUserFromJWT(c *gin.Context) *model.User {
+	identityUser := c.MustGet(config.Settings.Advance.JWTIdentityKey).(*model.User)
 	return identityUser
 }

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"kolibra/api"
 	"kolibra/config"
-	DB "kolibra/database"
+	"kolibra/database/dao"
+	"kolibra/database/model"
 	"kolibra/services/reader"
 	"log"
 )
@@ -15,10 +16,8 @@ func main() {
 	reader.CreateReaderCache()
 
 	// Connect to database
-	err := DB.InitDatabase()
-	if err != nil {
-		log.Panicf("Failed to connect to database: %v", err)
-	}
+	model.InitDatabase()
+	dao.InitDAO()
 	log.Printf("Database connected")
 
 	// Set up router

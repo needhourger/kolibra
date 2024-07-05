@@ -1,7 +1,8 @@
 package api
 
 import (
-	DB "kolibra/database"
+	"kolibra/database/dao"
+	"kolibra/database/model"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -18,20 +19,19 @@ func Sign(c *gin.Context) {
 	c.BindJSON(&payload)
 	log.Printf("Sign Payload %v", payload)
 
-	exist := DB.CheckUserByName(payload.Username)
-	if exist {
+	if dao.UserDAO.Exist(map[string]interface{}{"Username": payload.Username}) {
 		c.JSON(403, gin.H{"message": "Username already exists"})
 		return
 	}
 
-	user := DB.User{
+	user := model.User{
 		Username: payload.Username,
 		Password: payload.Password,
 		Email:    payload.Email,
 		Role:     "user",
 	}
 
-	err := DB.CreateUser(&user)
+	err := dao.UserDAO.Create(&user)
 	if err != nil {
 		c.JSON(500, gin.H{"message": "Failed to create user"})
 		return

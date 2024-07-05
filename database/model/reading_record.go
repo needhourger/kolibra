@@ -1,4 +1,4 @@
-package database
+package model
 
 type ReadingRecord struct {
 	ModelBase
