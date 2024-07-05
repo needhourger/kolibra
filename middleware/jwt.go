@@ -109,3 +109,8 @@ func payloadFunc() func(data any) jwt.MapClaims {
 		return jwt.MapClaims{}
 	}
 }
+
+func GetUserFromJWT(c *gin.Context) *DB.User {
+	identityUser := c.MustGet(config.Settings.Advance.JWTIdentityKey).(*DB.User)
+	return identityUser
+}

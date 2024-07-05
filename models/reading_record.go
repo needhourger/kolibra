@@ -9,3 +9,7 @@ type ReadingRecord struct {
 	ChapterID string
 	Chapter   Chapter
 }
+
+func GetOrCreateReadingRecord(record *ReadingRecord) {
+	db.Where(ReadingRecord{UserID: record.UserID, BookID: record.BookID}).Assign(ReadingRecord{ChapterID: record.ChapterID}).FirstOrCreate(record)
+}
