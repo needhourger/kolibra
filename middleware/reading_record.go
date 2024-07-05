@@ -17,6 +17,7 @@ func RecordReading() gin.HandlerFunc {
 			BookID:    bookID,
 			ChapterID: chapterID,
 		}
+		model.CreateOrUpdateReadingRecord(record)
 		log.Printf("Created record: %v", record)
 	}
 }
