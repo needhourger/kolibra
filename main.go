@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"kolibra/api"
 	"kolibra/config"
-	DB "kolibra/models"
+	DB "kolibra/database"
 	"kolibra/services/reader"
 	"log"
 )

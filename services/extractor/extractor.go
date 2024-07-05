@@ -2,7 +2,7 @@ package extractor
 
 import (
 	"errors"
-	DB "kolibra/models"
+	DB "kolibra/database"
 )
 
 func Extract(book *DB.Book) error {

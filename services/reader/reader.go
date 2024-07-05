@@ -4,7 +4,7 @@ import (
 	"errors"
 	"io"
 	"kolibra/config"
-	DB "kolibra/models"
+	DB "kolibra/database"
 	"kolibra/tools"
 	"os"
 	"time"

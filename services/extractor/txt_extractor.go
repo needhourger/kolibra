@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"kolibra/config"
-	DB "kolibra/models"
+	DB "kolibra/database"
 	"kolibra/tools"
 	"log"
 	"os"

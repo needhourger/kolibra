@@ -3,7 +3,7 @@ package middleware
 import (
 	"errors"
 	"kolibra/config"
-	DB "kolibra/models"
+	DB "kolibra/database"
 	"log"
 	"strings"
 	"time"

@@ -1,7 +1,7 @@
 package api
 
 import (
-	DB "kolibra/models"
+	DB "kolibra/database"
 	"log"
 
 	"github.com/gin-gonic/gin"

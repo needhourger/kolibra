@@ -3,7 +3,7 @@ package library
 import (
 	"io/fs"
 	"kolibra/config"
-	DB "kolibra/models"
+	DB "kolibra/database"
 	"kolibra/services/extractor"
 	"kolibra/tools"
 	"log"

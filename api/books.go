@@ -1,7 +1,7 @@
 package api
 
 import (
-	DB "kolibra/models"
+	DB "kolibra/database"
 	"kolibra/services/reader"
 	"log"
 
