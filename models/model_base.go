@@ -9,7 +9,7 @@ import (
 )
 
 type ModelBase struct {
-	ID        string `gorm:"primary_key"`
+	ID        string `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdateAt  time.Time
 	DeleteAt  gorm.DeletedAt `gorm:"index"`

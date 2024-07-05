@@ -2,7 +2,8 @@ package models
 
 type Book struct {
 	ModelBase
-	Title      string
+	ISBN       string
+	Title      string `gorm:"index"`
 	Author     string
 	Extension  string
 	UploaderID string
@@ -11,7 +12,7 @@ type Book struct {
 	Path       string
 	TitleRegex string `gorm:"default:''"`
 	Hash       string `gorm:"unique"`
-	Coding     string `gorm:"defaulr:'utf-8'"`
+	Coding     string `gorm:"default:'utf-8'"`
 	Ready      bool
 }
 
