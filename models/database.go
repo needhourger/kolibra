@@ -19,7 +19,7 @@ func GetInstance() (*gorm.DB, error) {
 	once.Do(func() {
 		db, err = gorm.Open(sqlite.Open(config.Settings.Database), &gorm.Config{})
 		if err == nil {
-			db.AutoMigrate(&User{}, &Book{}, &Chapter{})
+			db.AutoMigrate(&User{}, &Book{}, &Chapter{}, &ReadingRecord{})
 			adminUser := User{Username: "admin", Password: "admin", Role: ADMIN, Email: ""}
 			db.FirstOrCreate(&adminUser)
 			log.Printf("Admin user: %v", adminUser)
