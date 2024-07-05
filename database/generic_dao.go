@@ -1,6 +1,10 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"log"
+
+	"gorm.io/gorm"
+)
 
 type GenericDAO[T any] struct {
 	DB *gorm.DB
@@ -14,6 +18,30 @@ func (g *GenericDAO[T]) GetByID(id string) (*T, error) {
 	var model *T
 	err := g.DB.First(model, id).Error
 	return model, err
+}
+
+func (g *GenericDAO[T]) Gets(condition any) (*[]T, error) {
+	var models *[]T
+	err := g.DB.Where(condition).Find(models).Error
+	return models, err
+}
+
+func (g *GenericDAO[T]) Get(condition any) (*T, error) {
+	var model *T
+	err := g.DB.Where(condition).First(model).Error
+	return model, err
+}
+
+func (g *GenericDAO[T]) Exist(condition any) bool {
+	var model *T
+	if err := g.DB.Where(condition).First(model).Error; err == gorm.ErrRecordNotFound {
+		return false
+	} else if err == nil {
+		return true
+	} else {
+		log.Printf("Database [%v] check exist error: %v", model, err)
+		return false
+	}
 }
 
 func (g *GenericDAO[T]) GetAll() (*[]T, error) {
