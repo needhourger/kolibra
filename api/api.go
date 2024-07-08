@@ -30,11 +30,15 @@ func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
 	libraryApi.GET("/scan", ScanLibrary)
 }
 
+func initStatics(engine *gin.Engine) {
+}
+
 func InitGinEngine() *gin.Engine {
 	engine := gin.Default()
 
 	jwtMiddleware := middleware.InitJWTMiddleware()
 	initRouter(engine, jwtMiddleware)
+	initStatics(engine)
 
 	return engine
 }
