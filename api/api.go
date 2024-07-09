@@ -2,8 +2,11 @@ package api
 
 import (
 	"kolibra/middleware"
+	embedFs "kolibra/static"
+	"net/http"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,6 +34,10 @@ func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
 }
 
 func initStatics(engine *gin.Engine) {
+	engine.Use(static.Serve("/", static.EmbedFolder(embedFs.Embed, "dist")))
+	engine.NoRoute(func(ctx *gin.Context) {
+		ctx.Redirect(http.StatusMovedPermanently, "/")
+	})
 }
 
 func InitGinEngine() *gin.Engine {
