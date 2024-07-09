@@ -2,10 +2,12 @@ package api
 
 import (
 	"kolibra/database/dao"
+	"kolibra/middleware"
 	"kolibra/services/reader"
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func GetAllBooks(c *gin.Context) {
@@ -93,4 +95,21 @@ func DeleteBookByID(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"message": "Book deleted"})
+}
+
+func GetBookReadingRecord(c *gin.Context) {
+	bookID := c.Param("bookID")
+	user := middleware.GetUserFromJWT(c)
+	record, err := dao.ReadingRecordDAO.Get(map[string]any{"book_id": bookID})
+	if err != nil && err == gorm.ErrRecordNotFound {
+		chapter, err := dao.ChapterDAO.Get(map[string]any{"book_id": bookID, "user_id": user.ID})
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+		}
+		c.JSON(200, gin.H{"data": chapter.ID})
+	} else if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(200, gin.H{"data": record.ChapterID})
+	}
 }

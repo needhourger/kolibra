@@ -27,6 +27,11 @@ func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
 	bookApi.GET("/:id/chapters", GetBookChapters)
 	bookApi.GET("/:id/chapters/:cid", GetBookChapter)
 	bookApi.GET("/:id/chapters/:cid/content", middleware.RecordReading(), GetChapterContent)
+
+	// Reading record api
+	readingRecordApi := apiBase.Group("/reading_record")
+	readingRecordApi.Use(jwtMiddleware.MiddlewareFunc())
+	readingRecordApi.GET("/:bookID", GetBookReadingRecord)
 	// Library api
 	libraryApi := apiBase.Group("/library")
 	libraryApi.Use(jwtMiddleware.MiddlewareFunc())
