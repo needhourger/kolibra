@@ -14,10 +14,10 @@ NPMBUILD=$(NPMCMD) build --outDir ../static/dist
 
 # Default target executed when no arguments are given to make.
 # It will run the 'build_all' target
-default: build_all
+default: build
 
 # Build both backend and frontend
-build_all: build_frontend build_backend
+build: build_frontend build_backend
 
 # Builds the backend
 build_backend:
@@ -43,6 +43,6 @@ clean_frontend:
 	rm -rf ${BACKEND_DIR}/static/dist
 
 # Clean both backend and frontend
-clean_all: clean_backend clean_frontend
+clean: clean_backend clean_frontend
 
 .PHONY: default build_all build_backend clean_backend test_backend build_frontend clean_frontend clean_all
