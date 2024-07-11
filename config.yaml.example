@@ -1,0 +1,17 @@
+host: "0.0.0.0"
+port: 8080
+database: "./data/data.db"
+library: "./data/library"
+book_extension:
+  - ".txt"
+file_size_threshold: 1048576
+# file_name_method: "DIR_AUTHOR"
+file_name_method: "FILE_AUTHOR"
+default_title_regex: "(第[一二三四五六七八九十百千零0-9]+[章节卷集部篇回序][\\s\\n])"
+advance:
+  reader_cached_minutes: 5
+  jwt_identity_key: "id"
+  jwt_secret_key: "test"
+  jwt_timeout_hours: 168
+  jwt_max_refresh_hours: 168
+  jwt_head_name: "Bearer"
