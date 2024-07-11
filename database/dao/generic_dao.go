@@ -17,12 +17,18 @@ func NewGenericDAO[T any](db *gorm.DB) *GenericDAO[T] {
 func (g *GenericDAO[T]) GetByID(id string) (*T, error) {
 	var model T
 	err := g.DB.First(&model, "id = ?", id).Error
+	if err != nil {
+		log.Printf("Dao get by ID error: %v", err)
+	}
 	return &model, err
 }
 
 func (g *GenericDAO[T]) Gets(condition any) (*[]T, error) {
 	var models []T
 	err := g.DB.Where(condition).Find(&models).Error
+	if err != nil {
+		log.Printf("Dao get multi records error: %v", err)
+	}
 	return &models, err
 }
 
@@ -30,12 +36,18 @@ func (g *GenericDAO[T]) GetsByPage(condition any, order string, offset int, limi
 	var models []T
 	var total int64
 	err := g.DB.Order(order).Where(condition).Count(&total).Limit(limit).Offset(offset).Find(&models).Error
+	if err != nil {
+		log.Printf("Dao get by page error: %v", err)
+	}
 	return &models, total, err
 }
 
 func (g *GenericDAO[T]) Get(condition any) (*T, error) {
 	var model T
 	err := g.DB.Where(condition).First(&model).Error
+	if err != nil {
+		log.Printf("Dao get error: %v", err)
+	}
 	return &model, err
 }
 
@@ -53,12 +65,12 @@ func (g *GenericDAO[T]) Exist(condition any) bool {
 
 func (g *GenericDAO[T]) ExistByID(id string) bool {
 	var model T
-	if err := g.DB.First(&model, id).Error; err == gorm.ErrRecordNotFound {
+	if err := g.DB.First(&model, "id = ?", id).Error; err == gorm.ErrRecordNotFound {
 		return false
 	} else if err == nil {
 		return true
 	} else {
-		log.Printf("Database [%v] check exist error: %v", model, err)
+		log.Printf("Database [%v] check exist by id error: %v", model, err)
 		return false
 	}
 }
@@ -66,18 +78,33 @@ func (g *GenericDAO[T]) ExistByID(id string) bool {
 func (g *GenericDAO[T]) GetAll() (*[]T, error) {
 	var models []T
 	err := g.DB.Find(&models).Error
+	if err != nil {
+		log.Printf("Dao get all error: %v", err)
+	}
 	return &models, err
 }
 
 func (g *GenericDAO[T]) Create(model *T) error {
-	return g.DB.Create(model).Error
+	err := g.DB.Create(model).Error
+	if err != nil {
+		log.Printf("Dao create by ID error: %v", err)
+	}
+	return err
 }
 
 func (g *GenericDAO[T]) Update(model *T) error {
-	return g.DB.Save(model).Error
+	err := g.DB.Save(model).Error
+	if err != nil {
+		log.Printf("Dao update by ID error: %v", err)
+	}
+	return err
 }
 
 func (g *GenericDAO[T]) DeleteByID(id string) error {
 	var model T
-	return g.DB.Delete(&model, id).Error
+	err := g.DB.Delete(&model, id).Error
+	if err != nil {
+		log.Printf("Dao delete by ID error: %v", err)
+	}
+	return err
 }

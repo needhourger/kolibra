@@ -53,7 +53,7 @@ func GetBookChapter(c *gin.Context) {
 		c.JSON(404, gin.H{"error": "No such Book"})
 		return
 	}
-	chapter, err := dao.ChapterDAO.Get(map[string]any{"book_id": bookID, "chapter_id": chapterID})
+	chapter, err := dao.ChapterDAO.GetByID(chapterID)
 	if err != nil {
 		c.JSON(404, gin.H{"error": "No such Chapter"})
 		return
