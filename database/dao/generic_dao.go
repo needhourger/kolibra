@@ -26,6 +26,13 @@ func (g *GenericDAO[T]) Gets(condition any) (*[]T, error) {
 	return &models, err
 }
 
+func (g *GenericDAO[T]) GetsByPage(condition any, order string, offset int, limit int) (*[]T, int64, error) {
+	var models []T
+	var total int64
+	err := g.DB.Order(order).Where(condition).Count(&total).Limit(limit).Offset(offset).Find(&models).Error
+	return &models, total, err
+}
+
 func (g *GenericDAO[T]) Get(condition any) (*T, error) {
 	var model T
 	err := g.DB.Where(condition).First(&model).Error
