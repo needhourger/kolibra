@@ -46,4 +46,4 @@ clean_frontend:
 # Clean both backend and frontend
 clean: clean_backend clean_frontend
 
-.PHONY: default build_all build_backend clean_backend test_backend build_frontend clean_frontend clean_all
+.PHONY: all default build build_backend clean_backend test_backend build_frontend clean_frontend clean
