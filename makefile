@@ -1,7 +1,7 @@
 # Go parameters for backend
 BACKEND_DIR=.
 GOCMD=go
-GOBUILD=$(GOCMD) build -ldflags
+GOBUILD=$(GOCMD) build -v -ldflags
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 BINARY_NAME=kolibra
@@ -22,7 +22,7 @@ build: build_frontend build_backend
 
 # Builds the backend
 build_backend:
-	cd $(BACKEND_DIR) && $(GOBUILD) -o $(BINARY_NAME) -v
+	cd $(BACKEND_DIR) && $(GOBUILD) -o $(BINARY_NAME)
 
 # Cleans the backend
 clean_backend:

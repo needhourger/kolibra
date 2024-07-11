@@ -3,4 +3,6 @@ kolibra
 *.db
 data/
 dist/
+!static/dist
+static/dist/*
 config.yaml
