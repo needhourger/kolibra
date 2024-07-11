@@ -1,7 +1,7 @@
 # Go parameters for backend
 BACKEND_DIR=.
 GOCMD=go
-GOBUILD=$(GOCMD) build
+GOBUILD=$(GOCMD) build -ldflags
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 BINARY_NAME=kolibra
@@ -12,6 +12,7 @@ NPMCMD=yarn
 NPMINSTALL=$(NPMCMD) install
 NPMBUILD=$(NPMCMD) build --outDir ../static/dist
 
+all: build
 # Default target executed when no arguments are given to make.
 # It will run the 'build_all' target
 default: build
