@@ -33,7 +33,7 @@ func GetBook(c *gin.Context) {
 
 func GetBookChapters(c *gin.Context) {
 	bookID := c.Param("id")
-	if _, err := dao.BookDAO.GetByID(bookID); err != nil {
+	if !dao.BookDAO.ExistByID(bookID) {
 		c.JSON(404, gin.H{"error": "No such book"})
 		return
 	}
@@ -49,12 +49,11 @@ func GetBookChapters(c *gin.Context) {
 func GetBookChapter(c *gin.Context) {
 	bookID := c.Param("id")
 	chapterID := c.Param("cid")
-	book, err := dao.BookDAO.GetByID(bookID)
-	if err != nil {
+	if !dao.BookDAO.ExistByID(bookID) {
 		c.JSON(404, gin.H{"error": "No such Book"})
 		return
 	}
-	chapter, err := book.GetChapterByID(chapterID)
+	chapter, err := dao.ChapterDAO.Get(map[string]any{"book_id": bookID, "chapter_id": chapterID})
 	if err != nil {
 		c.JSON(404, gin.H{"error": "No such Chapter"})
 		return
@@ -70,7 +69,7 @@ func GetChapterContent(c *gin.Context) {
 		c.JSON(404, gin.H{"error": "No such Book"})
 		return
 	}
-	chapter, err := book.GetChapterByID(chapterID)
+	chapter, err := dao.ChapterDAO.GetByID(chapterID)
 	if err != nil {
 		c.JSON(404, gin.H{"error": "No such Chapter"})
 		return
