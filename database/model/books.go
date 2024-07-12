@@ -29,12 +29,6 @@ type Chapter struct {
 	BookID            string
 }
 
-func CheckBookFileHash(hash string) (*Book, bool) {
-	book := &Book{}
-	err := GetInstance().Where("hash = ?", hash).First(book).Error
-	return book, err == nil
-}
-
 func (book *Book) GetChapterByID(cid any) (*Chapter, error) {
 	chapter := &Chapter{}
 	err := GetInstance().Model(book).Where("id = ?", cid).Association("Chapters").Find(chapter, "id = ?", cid)

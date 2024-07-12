@@ -68,7 +68,7 @@ func extractTxt(book *model.Book) error {
 		}
 
 		line = strings.Trim(line, " \r\n")
-		log.Printf("Found Title: %s", line)
+		// log.Printf("Found Title: %s", line)
 
 		currentChapter = &model.Chapter{
 			ModelBase: model.ModelBase{ID: model.GenerateShortUUID()},

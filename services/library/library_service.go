@@ -32,7 +32,10 @@ func LoadBookByPath(path string, info fs.FileInfo, force bool) {
 		log.Printf("Failed to calculate file hash: %s", err)
 		return
 	}
-	book, exist := model.CheckBookFileHash(hash)
+	log.Printf("Path [%s] hash: %s", path, hash)
+
+	var book *model.Book
+	exist := dao.BookDAO.Exist(map[string]any{"hash": hash})
 	if exist && !force {
 		log.Printf("Book already exists: %s", path)
 		return

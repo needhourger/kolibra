@@ -7,6 +7,6 @@ import (
 )
 
 func ScanLibrary(c *gin.Context) {
-	go library.ScanLibrary(true)
+	go library.ScanLibrary(false)
 	c.JSON(200, gin.H{"message": "Scan running background"})
 }
