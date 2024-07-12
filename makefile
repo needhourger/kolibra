@@ -1,7 +1,7 @@
 # Go parameters for backend
 BACKEND_DIR=.
 GOCMD=go
-GOBUILD=$(GOCMD) build -v -ldflags
+GOBUILD=CGO_ENABLED=1 $(GOCMD) build -tags production -v
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 BINARY_NAME=kolibra
@@ -41,7 +41,6 @@ build_frontend:
 clean_frontend:
 	rm -rf $(FRONTEND_DIR)/node_modules
 	rm -rf $(FRONTEND_DIR)/dist
-	rm -rf ${BACKEND_DIR}/static/dist
 
 # Clean both backend and frontend
 clean: clean_backend clean_frontend

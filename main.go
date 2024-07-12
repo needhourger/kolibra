@@ -12,6 +12,7 @@ import (
 
 func main() {
 	// load config
+	config.InitLogFormat()
 	config.LoadConfig()
 	reader.CreateReaderCache()
 
