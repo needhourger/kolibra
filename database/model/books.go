@@ -13,6 +13,7 @@ type Book struct {
 	TitleRegex string `gorm:"default:''"`
 	Hash       string `gorm:"unique"`
 	Coding     string `gorm:"default:'utf-8'"`
+	Cover      string `gorm:"default:''"`
 	Ready      bool
 }
 
