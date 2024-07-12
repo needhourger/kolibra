@@ -62,7 +62,7 @@ func identityHandler() func(c *gin.Context) any {
 // Api permission check callback
 func unauthorizated() func(c *gin.Context, code int, message string) {
 	return func(c *gin.Context, code int, message string) {
-		c.JSON(code, gin.H{"message": message})
+		c.JSON(code, gin.H{"error": message})
 	}
 }
 
