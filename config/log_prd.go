@@ -3,6 +3,7 @@
 package config
 
 import (
+	"io"
 	"log"
 	"os"
 
@@ -17,5 +18,6 @@ func InitLogFormat() {
 	defer file.Close()
 	gin.SetMode(gin.ReleaseMode)
 
-	log.SetOutput(file)
+	multiWriter := io.MultiWriter(os.Stdout, file)
+	log.SetOutput(multiWriter)
 }
