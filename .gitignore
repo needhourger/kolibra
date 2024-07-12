@@ -5,4 +5,5 @@ data/
 dist/
 !static/dist
 static/dist/*
+!static/dist/frontend_files
 config.yaml
