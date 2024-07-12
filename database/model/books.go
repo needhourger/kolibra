@@ -1,20 +1,26 @@
 package model
 
+import "time"
+
 type Book struct {
 	ModelBase
-	ISBN       string
-	Title      string `gorm:"index"`
-	Author     string
-	Extension  string
-	UploaderID string
-	Chapters   []Chapter
-	Size       int64
-	Path       string
-	TitleRegex string `gorm:"default:''"`
-	Hash       string `gorm:"unique"`
-	Coding     string `gorm:"default:'utf-8'"`
-	Cover      string `gorm:"default:''"`
-	Ready      bool
+	ISBN        string
+	Title       string `gorm:"index"`
+	Author      string
+	Extension   string
+	UploaderID  string
+	Chapters    []Chapter
+	Size        int64
+	Path        string
+	TitleRegex  string `gorm:"default:''"`
+	Hash        string `gorm:"unique"`
+	Encoding    string `gorm:"default:'utf-8'"`
+	Cover       string
+	Publisher   string
+	PublishDate time.Time
+	Description string
+	Language    string
+	Ready       bool
 }
 
 type Chapter struct {

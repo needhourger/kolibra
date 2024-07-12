@@ -96,7 +96,7 @@ func extractTxt(book *model.Book) error {
 		}
 	}
 
-	book.Coding = fileEncoded
+	book.Encoding = fileEncoded
 	book.Ready = true
 	return dao.BookDAO.Update(book)
 }

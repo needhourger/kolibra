@@ -59,7 +59,7 @@ func ReadChapterTXT(book *model.Book, chapter *model.Chapter) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if book.Coding == "utf-8" {
+	if book.Encoding == "utf-8" {
 		return string(buf), nil
 	}
 	return tools.Gbk2utf8String(buf)
