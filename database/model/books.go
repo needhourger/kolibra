@@ -9,6 +9,7 @@ type Book struct {
 	Author      string
 	Extension   string
 	UploaderID  string
+	Uploader    User
 	Chapters    []Chapter
 	Size        int64
 	Path        string
