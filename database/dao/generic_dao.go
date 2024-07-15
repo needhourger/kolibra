@@ -102,9 +102,21 @@ func (g *GenericDAO[T]) Update(model *T) error {
 
 func (g *GenericDAO[T]) DeleteByID(id string) error {
 	var model T
-	err := g.DB.Delete(&model, id).Error
+	err := g.DB.Delete(&model, "id = ?", id).Error
 	if err != nil {
 		log.Printf("Dao delete by ID error: %v", err)
 	}
+	return err
+}
+
+func (g *GenericDAO[T]) Deletes(condition any) error {
+	var model T
+	err := g.DB.Where(condition).Delete(&model).Error
+	return err
+}
+
+func (g *GenericDAO[T]) UnscopedDeletes(condition any) error {
+	var model T
+	err := g.DB.Unscoped().Where(condition).Delete(&model).Error
 	return err
 }
