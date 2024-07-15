@@ -51,15 +51,15 @@ func (g *GenericDAO[T]) Get(condition any) (*T, error) {
 	return &model, err
 }
 
-func (g *GenericDAO[T]) Exist(condition any) bool {
+func (g *GenericDAO[T]) Exist(condition any) (*T, bool) {
 	var model T
 	if err := g.DB.Where(condition).First(&model).Error; err == gorm.ErrRecordNotFound {
-		return false
+		return nil, false
 	} else if err == nil {
-		return true
+		return &model, true
 	} else {
 		log.Printf("Database [%v] check exist error: %v", model, err)
-		return false
+		return nil, false
 	}
 }
 

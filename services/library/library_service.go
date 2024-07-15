@@ -35,10 +35,17 @@ func LoadBookByPath(path string, info fs.FileInfo, force bool) {
 	log.Printf("Path [%s] hash: %s", path, hash)
 
 	var book *model.Book
-	exist := dao.BookDAO.Exist(map[string]any{"hash": hash})
+	book, exist := dao.BookDAO.Exist(map[string]any{"hash": hash})
 	if exist && !force {
 		log.Printf("Book already exists: %s", path)
 		return
+	}
+	if exist && force {
+		err := dao.ChapterDAO.Deletes(map[string]any{"book_id": book.ID})
+		if err != nil {
+			log.Printf("Book force reload delete old chapters error: %v", err)
+			return
+		}
 	}
 	if !exist {
 		author, title := extractFileName(path, info)

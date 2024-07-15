@@ -19,7 +19,7 @@ func Sign(c *gin.Context) {
 	c.BindJSON(&payload)
 	log.Printf("Sign Payload %v", payload)
 
-	if dao.UserDAO.Exist(map[string]interface{}{"Username": payload.Username}) {
+	if _, exist := dao.UserDAO.Exist(map[string]interface{}{"Username": payload.Username}); exist {
 		c.JSON(403, gin.H{"message": "Username already exists"})
 		return
 	}
