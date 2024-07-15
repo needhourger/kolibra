@@ -49,14 +49,20 @@ func LoadBookByPath(path string, info fs.FileInfo, force bool) {
 	}
 	if !exist {
 		author, title := extractFileName(path, info)
+		adminUser, err := dao.UserDAO.Get(map[string]any{"role": model.ADMIN})
+		if err != nil {
+			log.Printf("Book create no admin user found: %v", err)
+			return
+		}
 		book = &model.Book{
-			Title:     title,
-			Author:    author,
-			Extension: filepath.Ext(info.Name()),
-			Size:      info.Size(),
-			Path:      path,
-			Ready:     false,
-			Hash:      hash,
+			Title:      title,
+			Author:     author,
+			Extension:  filepath.Ext(info.Name()),
+			Size:       info.Size(),
+			Path:       path,
+			Ready:      false,
+			Hash:       hash,
+			UploaderID: adminUser.ID,
 		}
 		err = dao.BookDAO.Create(book)
 		if err != nil {
