@@ -2,6 +2,7 @@ package api
 
 import (
 	"kolibra/database/dao"
+	"kolibra/database/model"
 	"kolibra/middleware"
 	"kolibra/services/reader"
 	"log"
@@ -33,7 +34,7 @@ func GetBook(c *gin.Context) {
 
 func GetBookChapters(c *gin.Context) {
 	bookID := c.Param("id")
-	if !dao.BookDAO.ExistByID(bookID) {
+	if _, exist := dao.BookDAO.ExistByID(bookID); !exist {
 		c.JSON(404, gin.H{"error": "No such book"})
 		return
 	}
@@ -49,7 +50,7 @@ func GetBookChapters(c *gin.Context) {
 func GetBookChapter(c *gin.Context) {
 	bookID := c.Param("id")
 	chapterID := c.Param("cid")
-	if !dao.BookDAO.ExistByID(bookID) {
+	if _, exist := dao.BookDAO.ExistByID(bookID); !exist {
 		c.JSON(404, gin.H{"error": "No such Book"})
 		return
 	}
@@ -84,7 +85,7 @@ func GetChapterContent(c *gin.Context) {
 
 func DeleteBookByID(c *gin.Context) {
 	bookID := c.Param("id")
-	if dao.BookDAO.ExistByID(bookID) {
+	if _, exist := dao.BookDAO.ExistByID(bookID); !exist {
 		c.JSON(404, gin.H{"error": "No such book"})
 		return
 	}
@@ -111,4 +112,28 @@ func GetBookReadingRecord(c *gin.Context) {
 	} else {
 		c.JSON(200, gin.H{"data": record.ChapterID})
 	}
+}
+
+func UpdateBook(c *gin.Context) {
+	bookID := c.Param("id")
+	book := model.Book{}
+	if _, exist := dao.BookDAO.ExistByID(bookID); !exist {
+		c.JSON(404, gin.H{"error": "Book not found"})
+		return
+	}
+	err := c.BindJSON(book)
+	if err != nil {
+		log.Printf("Update book bind json error: %v", err)
+		c.JSON(400, gin.H{"error": "Bad request"})
+		return
+	}
+	book.ID = bookID
+	err = dao.BookDAO.Update(&book)
+	if err != nil {
+		log.Printf("Update Book info error: %v", err)
+		c.JSON(500, gin.H{"error": "Interval server error"})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Update success"})
 }

@@ -63,15 +63,15 @@ func (g *GenericDAO[T]) Exist(condition any) (*T, bool) {
 	}
 }
 
-func (g *GenericDAO[T]) ExistByID(id string) bool {
+func (g *GenericDAO[T]) ExistByID(id string) (*T, bool) {
 	var model T
 	if err := g.DB.First(&model, "id = ?", id).Error; err == gorm.ErrRecordNotFound {
-		return false
+		return nil, false
 	} else if err == nil {
-		return true
+		return &model, true
 	} else {
 		log.Printf("Database [%v] check exist by id error: %v", model, err)
-		return false
+		return nil, false
 	}
 }
 

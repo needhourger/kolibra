@@ -24,6 +24,7 @@ func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
 	bookApi.GET("/", GetAllBooks)
 	bookApi.GET("/:id", GetBook)
 	bookApi.DELETE("/:id", DeleteBookByID)
+	bookApi.POST("/:id", UpdateBook)
 	bookApi.GET("/:id/chapters", GetBookChapters)
 	bookApi.GET("/:id/chapters/:cid", GetBookChapter)
 	bookApi.GET("/:id/chapters/:cid/content", middleware.RecordReading(), GetChapterContent)
