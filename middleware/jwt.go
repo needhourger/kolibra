@@ -111,7 +111,12 @@ func payloadFunc() func(data any) jwt.MapClaims {
 	}
 }
 
-func GetUserFromJWT(c *gin.Context) *model.User {
+func GetUserFromContext(c *gin.Context) *model.User {
 	identityUser := c.MustGet(config.Settings.Advance.JWTIdentityKey).(*model.User)
 	return identityUser
+}
+
+func IsAdminContext(c *gin.Context) (*model.User, bool) {
+	identityUser := c.MustGet(config.Settings.Advance.JWTIdentityKey).(*model.User)
+	return identityUser, identityUser.Role == model.ADMIN
 }

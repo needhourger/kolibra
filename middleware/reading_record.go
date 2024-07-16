@@ -9,7 +9,7 @@ import (
 
 func RecordReading() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		user := GetUserFromJWT(ctx)
+		user := GetUserFromContext(ctx)
 		bookID := ctx.Param("id")
 		chapterID := ctx.Param("cid")
 		record := &model.ReadingRecord{

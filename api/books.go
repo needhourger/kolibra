@@ -84,6 +84,10 @@ func GetChapterContent(c *gin.Context) {
 }
 
 func DeleteBookByID(c *gin.Context) {
+	if _, isAdmin := middleware.IsAdminContext(c); !isAdmin {
+		c.JSON(403, gin.H{"error": "Access denied"})
+		return
+	}
 	bookID := c.Param("id")
 	if _, exist := dao.BookDAO.ExistByID(bookID); !exist {
 		c.JSON(404, gin.H{"error": "No such book"})
@@ -99,7 +103,7 @@ func DeleteBookByID(c *gin.Context) {
 
 func GetBookReadingRecord(c *gin.Context) {
 	bookID := c.Param("bookID")
-	user := middleware.GetUserFromJWT(c)
+	user := middleware.GetUserFromContext(c)
 	record, err := dao.ReadingRecordDAO.Get(map[string]any{"book_id": bookID})
 	if err != nil && err == gorm.ErrRecordNotFound {
 		chapter, err := dao.ChapterDAO.Get(map[string]any{"book_id": bookID, "user_id": user.ID})
@@ -115,7 +119,7 @@ func GetBookReadingRecord(c *gin.Context) {
 }
 
 func UpdateBook(c *gin.Context) {
-	user := middleware.GetUserFromJWT(c)
+	user := middleware.GetUserFromContext(c)
 	bookID := c.Param("id")
 	book := model.Book{}
 	if book, exist := dao.BookDAO.ExistByID(bookID); !exist {
