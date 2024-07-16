@@ -123,6 +123,7 @@ func UpdateBook(c *gin.Context) {
 		return
 	} else if !(book.UploaderID == user.ID || user.Role == model.ADMIN) {
 		c.JSON(403, gin.H{"error": "Access denied"})
+		return
 	}
 
 	err := c.BindJSON(book)
