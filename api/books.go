@@ -115,12 +115,16 @@ func GetBookReadingRecord(c *gin.Context) {
 }
 
 func UpdateBook(c *gin.Context) {
+	user := middleware.GetUserFromJWT(c)
 	bookID := c.Param("id")
 	book := model.Book{}
-	if _, exist := dao.BookDAO.ExistByID(bookID); !exist {
+	if book, exist := dao.BookDAO.ExistByID(bookID); !exist {
 		c.JSON(404, gin.H{"error": "Book not found"})
 		return
+	} else if !(book.UploaderID == user.ID || user.Role == model.ADMIN) {
+		c.JSON(403, gin.H{"error": "Access denied"})
 	}
+
 	err := c.BindJSON(book)
 	if err != nil {
 		log.Printf("Update book bind json error: %v", err)
