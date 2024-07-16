@@ -5,12 +5,13 @@ import (
 	embedFs "kolibra/static"
 	"net/http"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
-func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
+func initRouter(engine *gin.Engine) {
+
+	jwtMiddleware := middleware.InitJWTMiddleware()
 	apiBase := engine.Group("/api")
 
 	// No auth api
@@ -23,7 +24,6 @@ func initRouter(engine *gin.Engine, jwtMiddleware *jwt.GinJWTMiddleware) {
 	bookApi.Use(jwtMiddleware.MiddlewareFunc())
 	bookApi.GET("/", GetAllBooks)
 	bookApi.GET("/:id", GetBook)
-	bookApi.DELETE("/:id", DeleteBookByID)
 	bookApi.POST("/:id", UpdateBook)
 	bookApi.GET("/:id/chapters", GetBookChapters)
 	bookApi.GET("/:id/chapters/:cid", GetBookChapter)
@@ -49,8 +49,7 @@ func initStatics(engine *gin.Engine) {
 func InitGinEngine() *gin.Engine {
 	engine := gin.Default()
 
-	jwtMiddleware := middleware.InitJWTMiddleware()
-	initRouter(engine, jwtMiddleware)
+	initRouter(engine)
 	initStatics(engine)
 
 	return engine
